@@ -52,6 +52,7 @@ app.post("/signup", (req, res) => {
 // check if user is authenticated
 function authenticateUser(req, res, next) {
 	const users = require("./data/users.json");
+	console.log("AUTHENTICATING!!!");
 	if (
 		!users.some(
 			(user) =>
@@ -64,19 +65,84 @@ function authenticateUser(req, res, next) {
 	} else next();
 }
 
-app.all("/:username", authenticateUser);
+app.all("/:username/*", authenticateUser);
 
-app.route("/:username/:path/file-:filename").post((req, res) => {
-	switch (req.body.type) {
-		case "info":
-			break;
-		case "show":
-			break;
-		case "copy":
-			break;
-		default:
-			break;
-	}
+app.route("/:username*/file-:filename")
+	.post((req, res) => {
+		const { username, filename } = req.params;
+		const path = req.params[0];
+		console.log("req.params:", req.params);
+		console.log("username:", username);
+		console.log("path:", path);
+		console.log("filename:", filename);
+		switch (req.body.type) {
+			case "info":
+				res.json(fileUtil.getFileInfo(username, path, filename));
+				break;
+			case "show":
+				res.send(fileUtil.getFileContent(username, path, filename));
+				break;
+			case "copy":
+				res.json(fileUtil.copyFile(username, path, filename));
+				break;
+			default:
+				res.status(400).send(
+					'Type should be specified in request body, and should be one of "info", "show", or "copy"'
+				);
+				break;
+		}
+		res.end();
+	})
+	.patch((req, res) => {
+		const { username, filename } = req.params;
+		const path = req.params[0];
+		if (req.body.name) {
+			fileUtil.renameFile(username, path, filename, req.body.name);
+			res.end();
+		} else if (req.body.path) {
+			fileUtil.moveFile(username, path, filename, req.body.path);
+			res.end();
+		} else res.status(400).send("Missing name in body");
+	})
+	.delete((req, res) => {
+		const { username, filename } = req.params;
+		const path = req.params[0];
+		fileUtil.deleteFile(username, path, filename);
+		res.end();
+	});
+
+app.route("/:username*/folder-:foldername")
+	.post((req, res) => {
+		const { username, foldername } = req.params;
+		const path = req.params[0];
+		console.log("username:", username);
+		console.log("path:", path);
+		console.log("foldername:", foldername);
+
+		res.json(fileUtil.getFolderInfo(username, path, foldername));
+		res.end();
+	})
+	.patch((req, res) => {
+		const { username, foldername } = req.params;
+		const path = req.params[0];
+		if (req.body.name) {
+			fileUtil.renameFolder(username, path, foldername, req.body.name);
+			res.end();
+		}
+		res.status(400).send(
+			"Name should be specified in body for rename operation, and path should be specified for move operation"
+		);
+	})
+	.delete((req, res) => {
+		const { username, foldername } = req.params;
+		const path = req.params[0];
+		fileUtil.deleteFolder(username, path, foldername);
+		res.end();
+	});
+
+app.post("/:username", (req, res) => {
+	res.json(fileUtil.getFolderInfo(req.params.username, null, null));
+	res.end();
 });
 
 app.listen(3000);
