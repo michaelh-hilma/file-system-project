@@ -13,10 +13,15 @@
         "size": 345766
       }
     ],
-    "folderNames": [
-      "downloads",
-      "more-downloads",
-      "and-so-on"
+    "folders": [
+      {
+        "id": 1,
+        "name": "downloads"
+      },
+      {
+        "id": 2,
+        "name": "more-downloads"
+      }
     ]
   }
 }
