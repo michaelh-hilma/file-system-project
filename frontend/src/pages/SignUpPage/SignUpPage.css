@@ -1,0 +1,37 @@
+.sign-up-page {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100%;
+  gap: 0;
+}
+.sign-up-page .sign-up-form {
+  display: grid;
+  row-gap: 8px;
+  justify-items: center;
+
+  width: 25vw;
+}
+
+.sign-up-form .sign-up-input {
+  width: 100px;
+  text-align: center;
+  align-self: center;
+}
+
+.sign-up-form .sign-up-button {
+  width: fit-content;
+  justify-self: center;
+}
+
+.sign-up-form .sign-up-errormsg {
+  width: 20vw;
+  margin: 0;
+  text-align: center;
+}
+.sign-up-form a {
+  width: 10vw;
+  justify-self: center;
+  text-align: center;
+}

@@ -1,0 +1,38 @@
+.sign-in-page {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100%;
+  gap: 0;
+}
+
+.sign-in-page .sign-in-form {
+  display: grid;
+  row-gap: 8px;
+  justify-items: center;
+
+  width: 25vw;
+}
+
+.sign-in-form .sign-in-input {
+  width: 100px;
+  text-align: center;
+  align-self: center;
+}
+
+.sign-in-form .sign-in-button {
+  width: fit-content;
+  justify-self: center;
+}
+
+.sign-in-form .sign-in-errormsg {
+  width: 20vw;
+  margin: 0;
+  text-align: center;
+}
+.sign-in-form a {
+  width: 10vw;
+  justify-self: center;
+  text-align: center;
+}
