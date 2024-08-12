@@ -1,5 +1,4 @@
-import { Route, Routes, useLocation, useNavigate } from "react-router";
-import { BrowserRouter } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router";
 import FileSystem from "./pages/FileSystem/FileSystem";
 import { createContext, useEffect, useState } from "react";
 import SignInPage from "./pages/SignInPage/SignInPage";
@@ -11,7 +10,6 @@ export const CurrentSignedInUserContext = createContext(null);
 function App() {
   const [currentUserState, setCurrentUserState] = useState({});
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     if (currentUserState.username && currentUserState.id)
