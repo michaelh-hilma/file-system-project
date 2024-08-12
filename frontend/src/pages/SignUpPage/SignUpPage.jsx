@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useRef } from "react";
 import { CurrentSignedInUserContext } from "../../App";
 import { useNavigate } from "react-router";
+import "./SignUpPage.css";
 
 function SignUpPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);
@@ -43,26 +44,37 @@ function SignUpPage() {
   };
 
   return (
-    <div>
-      <form onSubmit={submitHandler}>
-        <input ref={usernameRef} type="text" placeholder="Username" />
-        <input ref={passwordRef} type="password" placeholder="Password" />
+    <div className="sign-up-page">
+      <form className="sign-up-form" onSubmit={submitHandler}>
         <input
+          className="sign-up-input"
+          ref={usernameRef}
+          type="text"
+          placeholder="Username"
+        />
+        <input
+          className="sign-up-input"
+          ref={passwordRef}
+          type="password"
+          placeholder="Password"
+        />
+        <input
+          className="sign-up-input"
           ref={repeatPasswordRef}
           type="password"
           placeholder="Repeat Password"
         />
-        <p ref={errorRef}></p>
-        <button>Login</button>
+        <p className="sign-up-errormsg" ref={errorRef}></p>
+        <button className="sign-up-button">Signup</button>
+        <a
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/signin");
+          }}
+        >
+          {"Already have an account?"}
+        </a>
       </form>
-      <a
-        onClick={(e) => {
-          e.preventDefault();
-          navigate("/signin");
-        }}
-      >
-        {"Already have an account?"}
-      </a>
     </div>
   );
 }

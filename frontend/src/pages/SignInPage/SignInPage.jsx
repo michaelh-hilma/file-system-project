@@ -3,6 +3,8 @@ import { useContext, useRef } from "react";
 import { CurrentSignedInUserContext } from "../../App";
 import { useNavigate } from "react-router";
 
+import "./SignInPage.css";
+
 function SignInPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);
 
@@ -38,21 +40,33 @@ function SignInPage() {
   };
 
   return (
-    <div>
-      <form onSubmit={submitHandler}>
-        <input ref={usernameRef} type="text" placeholder="Username" />
-        <input ref={passwordRef} type="password" placeholder="Password" />
-        <p ref={errorRef}></p>
-        <button type="submit">Login</button>
+    <div className="sign-in-page">
+      <form className="sign-in-form" onSubmit={submitHandler}>
+        <input
+          className="sign-in-input"
+          ref={usernameRef}
+          type="text"
+          placeholder="Username"
+        />
+        <input
+          className="sign-in-input"
+          ref={passwordRef}
+          type="password"
+          placeholder="Password"
+        />
+        <p className="sign-in-errormsg" ref={errorRef}></p>
+        <button className="sign-in-button" type="submit">
+          Login
+        </button>
+        <a
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/signup");
+          }}
+        >
+          {"Don't have an account?"}
+        </a>
       </form>
-      <a
-        onClick={(e) => {
-          e.preventDefault();
-          navigate("/signup");
-        }}
-      >
-        {"Don't have an account?"}
-      </a>
     </div>
   );
 }
