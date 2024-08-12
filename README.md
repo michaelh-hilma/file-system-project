@@ -20,6 +20,8 @@
 
 ## Show POST /:path/folder-:foldername {userid}
 
+## Show POST /:username {userid}
+
 ## Enter //same as show different clientside view
 
 ## Rename PATCH /:path/folder-:foldername
