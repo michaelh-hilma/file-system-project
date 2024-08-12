@@ -44,7 +44,7 @@ app.post("/signup", (req, res) => {
 		id: util.generateID(),
 	};
 	users.push(newUser);
-	fileUtil.updateUsers(users);
+	fileUtil.updateUsers(users, __dirname);
 	res.json({ id: newUser.id, username: newUser.username });
 	res.end();
 });
@@ -52,7 +52,6 @@ app.post("/signup", (req, res) => {
 // check if user is authenticated
 function authenticateUser(req, res, next) {
 	const users = require("./data/users.json");
-	console.log("AUTHENTICATING!!!");
 	if (
 		!users.some(
 			(user) =>
@@ -71,10 +70,6 @@ app.route("/:username*/file-:filename")
 	.post((req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
-		console.log("req.params:", req.params);
-		console.log("username:", username);
-		console.log("path:", path);
-		console.log("filename:", filename);
 		switch (req.body.type) {
 			case "info":
 				res.json(fileUtil.getFileInfo(username, path, filename));
@@ -115,10 +110,6 @@ app.route("/:username*/folder-:foldername")
 	.post((req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
-		console.log("username:", username);
-		console.log("path:", path);
-		console.log("foldername:", foldername);
-
 		res.json(fileUtil.getFolderInfo(username, path, foldername));
 		res.end();
 	})

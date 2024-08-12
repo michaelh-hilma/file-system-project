@@ -1,7 +1,13 @@
 const fs = require("fs");
+const fsPromises = require("fs/promises");
+const path = require("path");
 
-function updateUsers(users) {
-	console.log("users:", users);
+async function updateUsers(users, parentDir) {
+	const ret = await fsPromises.writeFile(
+		path.join(parentDir, "data", "users.json"),
+		JSON.stringify(users)
+	);
+	console.log(ret);
 }
 
 // if path is undefined, the folder is the root folder
