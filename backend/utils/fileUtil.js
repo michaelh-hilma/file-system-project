@@ -2,15 +2,15 @@ const fs = require("fs");
 const fsPromises = require("fs/promises");
 const path = require("path");
 
-async function updateUsers(users, parentDir) {
-	const ret = await fsPromises.writeFile(
-		path.join(parentDir, "data", "users.json"),
-		JSON.stringify(users)
-	);
-	console.log(ret);
-}
+//error checking!!!!!!
 
-// if path is undefined, the folder is the root folder
+async function updateUsers(users, parentDir) {
+	fs.writeFile(
+		path.join(parentDir, "data", "users.json"),
+		JSON.stringify(users),
+		() => {}
+	);
+}
 
 function getFileInfo(username, path, filename) {
 	console.log("IN getFileInfo");
