@@ -1,8 +1,8 @@
 import { Route, Routes, useNavigate } from "react-router";
 import FileSystem from "./pages/FileSystem/FileSystem";
 import { createContext, useEffect, useState } from "react";
-import SignInPage from "./pages/SignInPage/SignInPage";
-import SignUpPage from "./pages/SignUpPage/SignUpPage";
+import SignInPage from "./pages/SigningPages/SignInPage/SignInPage";
+import SignUpPage from "./pages/SigningPages/SignUpPage/SignUpPage";
 import FileSystemLayout from "./Layouts/FileSystemLayout";
 
 export const CurrentSignedInUserContext = createContext(null);

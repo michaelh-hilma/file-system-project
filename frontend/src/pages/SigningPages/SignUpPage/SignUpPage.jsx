@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useContext, useRef } from "react";
-import { CurrentSignedInUserContext } from "../../App";
+import { CurrentSignedInUserContext } from "../../../App";
 import { useNavigate } from "react-router";
-import "./SignUpPage.css";
+import "../SigningPages.css";
 
 function SignUpPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);
@@ -44,28 +44,30 @@ function SignUpPage() {
   };
 
   return (
-    <div className="sign-up-page">
-      <form className="sign-up-form" onSubmit={submitHandler}>
+    <div className="sign-page">
+      <form className="sign-form" onSubmit={submitHandler}>
         <input
-          className="sign-up-input"
+          className="sign-input"
           ref={usernameRef}
           type="text"
           placeholder="Username"
         />
         <input
-          className="sign-up-input"
+          className="sign-input"
           ref={passwordRef}
           type="password"
           placeholder="Password"
         />
         <input
-          className="sign-up-input"
+          className="sign-input"
           ref={repeatPasswordRef}
           type="password"
           placeholder="Repeat Password"
         />
-        <p className="sign-up-errormsg" ref={errorRef}></p>
-        <button className="sign-up-button">Signup</button>
+        <p className="sign-errormsg" ref={errorRef}></p>
+        <button className="sign-button">
+          <span>Signup</span>
+        </button>
         <a
           onClick={(e) => {
             e.preventDefault();
