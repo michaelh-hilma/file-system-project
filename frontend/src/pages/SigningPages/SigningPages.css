@@ -38,7 +38,7 @@
 
 .sign-form button {
   background-color: azure;
-  border: 2px solid blueviolet;
+  border: none;
   border-radius: 12px;
   width: fit-content;
   padding: 8px 34px;
