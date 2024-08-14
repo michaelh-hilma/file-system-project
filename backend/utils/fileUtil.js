@@ -47,7 +47,7 @@ async function updateUsers(users, newUser) {
 	return result;
 }
 
-async function addFile(username, filePath, reqBody) {
+async function addFile(username, filePath, filename, data) {
 	let result = {
 		status: 200,
 		err: null,
@@ -56,8 +56,8 @@ async function addFile(username, filePath, reqBody) {
 
 	await fs
 		.writeFile(
-			path.join(USER_FOLDER_PATH, username, filePath, reqBody.name),
-			reqBody.data
+			path.join(USER_FOLDER_PATH, username, filePath, filename),
+			data
 		)
 		.catch((err) => {
 			result.status = 500;
@@ -67,8 +67,9 @@ async function addFile(username, filePath, reqBody) {
 	if (result.err) return result;
 
 	const fileData = await JSONUtil.newFileJSON(
-		path.join(username, filePath),
-		reqBody.name
+		username,
+		filePath,
+		filename
 	).catch((err) => {
 		result.status = 500;
 		result.err = err;
@@ -79,7 +80,7 @@ async function addFile(username, filePath, reqBody) {
 	return result;
 }
 
-async function addFolder(username, folderPath, reqBody) {
+async function addFolder(username, folderPath, foldername) {
 	let result = {
 		status: 200,
 		err: null,
@@ -87,7 +88,7 @@ async function addFolder(username, folderPath, reqBody) {
 	};
 
 	await fs
-		.mkdir(path.join(USER_FOLDER_PATH, username, folderPath, reqBody.name))
+		.mkdir(path.join(USER_FOLDER_PATH, username, folderPath, foldername))
 		.catch((err) => {
 			result.status = 500;
 			result.err = err;
@@ -97,7 +98,7 @@ async function addFolder(username, folderPath, reqBody) {
 
 	const folderData = await JSONUtil.newFolderJSON(
 		path.join(username, folderPath),
-		reqBody.name
+		foldername
 	).catch((err) => {
 		result.status = 500;
 		result.err = err;
@@ -164,7 +165,8 @@ async function copyFile(username, filePath, filename) {
 	if (result.err) return result;
 
 	const fileData = await JSONUtil.newFileJSON(
-		path.join(username, filePath),
+		username,
+		filePath,
 		filename + "-copy"
 	).catch((err) => {
 		result.status = 500;
@@ -177,15 +179,100 @@ async function copyFile(username, filePath, filename) {
 }
 
 async function renameFile(username, filePath, filename, newName) {
-	console.log("IN renameFile");
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+	try {
+		await fs.rename(
+			path.join(USER_FOLDER_PATH, username, filePath, filename),
+			path.join(USER_FOLDER_PATH, username, filePath, newName)
+		);
+	} catch (err) {
+		result.status = 500;
+		result.err = err;
+	}
+
+	if (result.err) return result;
+
+	const fileData = await JSONUtil.renameFileJSON(
+		username,
+		filePath,
+		filename,
+		newName
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = fileData;
+
+	return result;
 }
 
 async function moveFile(username, filePath, filename, newPath) {
-	console.log("IN moveFile");
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+	try {
+		await fs.rename(
+			path.join(USER_FOLDER_PATH, username, filePath, filename),
+			path.join(USER_FOLDER_PATH, username, newPath, filename)
+		);
+	} catch (err) {
+		result.status = 500;
+		result.err = err;
+	}
+
+	if (result.err) return result;
+
+	const fileData = await JSONUtil.moveFileJSON(
+		username,
+		filePath,
+		filename,
+		newPath
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = fileData;
+
+	return result;
 }
 
 async function deleteFile(username, filePath, filename) {
-	console.log("IN deleteFile");
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+	try {
+		await fs.unlink(
+			path.join(USER_FOLDER_PATH, username, filePath, filename)
+		);
+	} catch (err) {
+		result.status = 500;
+		result.err = err;
+	}
+
+	if (result.err) return result;
+
+	const deltedFile = await JSONUtil.deleteFileJSON(
+		username,
+		filePath,
+		filename
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = deltedFile;
+
+	return result;
 }
 
 async function getFolderInfo(username, folderPath, folderName) {

@@ -83,17 +83,19 @@ app.route("/:username*/file-:filename")
 				response = await fileUtil.getFileInfo(username, path, filename);
 
 				if (response.err)
-					return res.status(404).send(err.message).end();
+					return res.status(404).send(response.err.message).end();
 				res.send(response.data).end();
 				break;
 			case "show":
-				fileUtil
-					.getFileContent(username, path, filename)
-					.then((data) => {
-						res.send(data);
-						res.end();
-					})
-					.catch((err) => res.status(404).send(err.message).end());
+				response = await fileUtil.getFileContent(
+					username,
+					path,
+					filename
+				);
+
+				if (response.err)
+					return res.status(404).send(response.err.message).end();
+				res.send(response.data).end();
 				break;
 			case "copy":
 				response = await fileUtil.copyFile(username, path, filename);
@@ -108,22 +110,42 @@ app.route("/:username*/file-:filename")
 		}
 		//res.end();
 	})
-	.patch((req, res) => {
+	.patch(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
+		let response;
 		if (req.body.name) {
-			fileUtil.renameFile(username, path, filename, req.body.name);
-			res.end();
+			response = await fileUtil.renameFile(
+				username,
+				path,
+				filename,
+				req.body.name
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		} else if (req.body.path) {
-			fileUtil.moveFile(username, path, filename, req.body.path);
-			res.end();
+			response = await fileUtil.moveFile(
+				username,
+				path,
+				filename,
+				req.body.path
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		} else res.status(400).send("Missing name in body");
 	})
-	.delete((req, res) => {
+	.delete(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
-		fileUtil.deleteFile(username, path, filename);
-		res.end();
+		const response = await fileUtil.deleteFile(username, path, filename);
+
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
+		res.send(response.data).end();
 	});
 
 app.route("/:username*/folder-:foldername")
@@ -136,31 +158,51 @@ app.route("/:username*/folder-:foldername")
 			foldername
 		);
 
-		if (response.err) return res.status(404).send(err.message).end();
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
 		res.send(response.data).end();
 	})
-	.patch((req, res) => {
+	.patch(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
 		if (req.body.name) {
-			fileUtil.renameFolder(username, path, foldername, req.body.name);
-			res.end();
+			const response = await fileUtil.getFolderInfo(
+				username,
+				path,
+				foldername
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		}
 		res.status(400).send(
 			"Name should be specified in body for rename operation, and path should be specified for move operation"
 		);
 	})
-	.delete((req, res) => {
+	.delete(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
-		fileUtil.deleteFolder(username, path, foldername);
-		res.end();
+		const response = await fileUtil.deleteFolder(
+			username,
+			path,
+			foldername
+		);
+
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
+		res.send(response.data).end();
 	});
 
 app.post("/:username*/folder", async (req, res) => {
 	const { username } = req.params;
 	const path = req.params[0];
-	const response = await fileUtil.addFolder(username, path, req.body);
+	const response = await fileUtil.addFolder(
+		username,
+		path,
+		req.body.name,
+		req.body.data
+	);
 	if (response.err) {
 		res.status(response.status).send(response.err.message).end();
 	} else {
@@ -171,7 +213,12 @@ app.post("/:username*/folder", async (req, res) => {
 app.post("/:username*/file", async (req, res) => {
 	const { username } = req.params;
 	const path = req.params[0];
-	const response = await fileUtil.addFile(username, path, req.body);
+	const response = await fileUtil.addFile(
+		username,
+		path,
+		req.body.name,
+		req.body.data
+	);
 	if (response.err) {
 		res.status(response.status).send(response.err.message).end();
 	} else {
