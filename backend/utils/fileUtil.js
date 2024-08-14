@@ -48,37 +48,98 @@ async function updateUsers(users, newUser) {
 	return result;
 }
 
-function addFile(username, filePath, data) {
-	console.log("IN ADD FILE");
+async function addFile(username, filePath, reqBody) {
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+
+	await fs
+		.writeFile(
+			path.join(USER_FOLDER_PATH, username, filePath, reqBody.name),
+			reqBody.data
+		)
+		.catch((err) => {
+			result.status = 500;
+			result.err = err;
+		});
+
+	if (result.err) return result;
+
+	const fileData = await JSONUtil.newFileJSON(
+		path.join(USER_FOLDER_PATH, username, filePath),
+		reqBody.name
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = fileData;
+
+	return result;
 }
 
-function addFolder(username, folderPath, data) {
-	console.log("IN ADD FOLDER");
+async function addFolder(username, folderPath, reqBody) {
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+
+	await fs
+		.mkdir(path.join(USER_FOLDER_PATH, username, folderPath, reqBody.name))
+		.catch((err) => {
+			result.status = 500;
+			result.err = err;
+		});
+
+	if (result.err) return result;
+
+	const folderData = await JSONUtil.newFolderJSON(
+		path.join(USER_FOLDER_PATH, username, folderPath),
+		reqBody.name
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = folderData;
+
+	return result;
 }
 
-function getFileInfo(username, filePath, filename) {
+async function getFileInfo(username, filePath, filename) {
 	const result = {
 		status: 200,
 		err: null,
 		data: null,
 	};
 
-	// const statPromise = fs
-	// 	.stat(getPath(username, filePath, filename))
-	// 	.then((stats) => ({
-	// 		name: filename,
-	// 		path: username + filePath,
-	// 		size: data.size,
-	// 		creationDate: data.birthtime,
-	// 	}));
-	// const jsonPromise = fs
-	// 	.readFile(getJSONPath(username, filePath))
-	// 	.then((data) => ({
-	// 		name: filename,
-	// 		path: username + filePath,
-	// 		size: data.size,
-	// 		creationDate: data.birthtime,
-	// 	}));
+	const stats = await fs
+		.stat(getPath(username, filePath, filename))
+		.then((data) => ({
+			name: filename,
+			path: username + filePath,
+			size: data.size,
+			creationDate: data.birthtime,
+		}))
+		.catch((err) => {
+			result.status = 500;
+			result.err = err;
+		});
+	const jsonStats = await require(getJSONPath(username, filePath));
+
+	stats.id = jsonStats.contains.files.find(
+		(file) => file.name === stats.name
+	).id;
+	if (!stats.id) {
+		result.status = 404;
+		result.err = { message: "Something went wrong looking for info" };
+	} else {
+		result.data = stats;
+	}
+	return result;
 }
 
 function getFileContent(username, filePath, filename) {
@@ -101,8 +162,17 @@ function deleteFile(username, filePath, filename) {
 	console.log("IN deleteFile");
 }
 
-function getFolderInfo(username, folderPath, filename) {
-	console.log("IN getFolderInfo");
+async function getFolderInfo(username, folderPath, folderName) {
+	const result = {
+		status: 200,
+		err: null,
+		data: await require(getJSONPath(
+			username,
+			path.join(folderPath, folderName)
+		)),
+	};
+
+	return result;
 }
 
 function renameFolder(username, folderPath, filename) {
@@ -119,6 +189,15 @@ function makeNewUserFolder(username) {
 
 function getPath(username, fpath, fname) {
 	return path.join(USER_FOLDER_PATH, username, fpath, fname);
+}
+
+function getJSONPath(username, fpath) {
+	return path.join(
+		USER_FOLDER_PATH,
+		username,
+		fpath,
+		JSONUtil.INDEX_FILE_NAME
+	);
 }
 
 module.exports.updateUsers = updateUsers;

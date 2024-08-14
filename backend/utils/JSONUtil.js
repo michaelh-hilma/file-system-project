@@ -19,11 +19,10 @@ function initializeUserFolderJSON(userFolderPath, username) {
 	);
 }
 
-function newFolderJSON(folderPath) {
-	const parentFolderPath = path.dirname(folderPath);
+async function newFolderJSON(folderPath, folderName) {
 	const newFolder = {
 		id: generateID(),
-		name: path.basename(folderPath),
+		name: folderName,
 		path: folderPath,
 		creationDate: new Date().toISOString(),
 		contains: {
@@ -31,24 +30,31 @@ function newFolderJSON(folderPath) {
 			folders: [],
 		},
 	};
-	fs.writeFile(
-		path.join(folderPath, INDEX_FILE_NAME),
-		JSON.stringify(newFolder)
-	);
-	const parentIndex = require(path.join(parentFolderPath, INDEX_FILE_NAME));
+	await fs
+		.writeFile(
+			path.join(folderPath, folderName, INDEX_FILE_NAME),
+			JSON.stringify(newFolder)
+		)
+		.catch((err) => console.log("WAAAAA", err.message));
+
+	const parentIndex = require(path.join(folderPath, INDEX_FILE_NAME));
+
 	parentIndex.contains.folders.push({
 		name: newFolder.name,
 		id: newFolder.id,
 	});
-	fs.writeFile(
-		path.join(parentFolderPath, INDEX_FILE_NAME),
-		JSON.stringify(parentIndex)
-	);
+	await fs
+		.writeFile(
+			path.join(folderPath, INDEX_FILE_NAME),
+			JSON.stringify(parentIndex)
+		)
+		.catch((err) => console.log("WEEEEE", err.message));
+
+	return newFolder;
 }
 
-function newFileJSON(folderPath, fileName) {
-	const folderIndex = require(path.join(folderPath, INDEX_FILE_NAME));
-
+async function newFileJSON(folderPath, fileName) {
+	const folderIndex = await require(path.join(folderPath, INDEX_FILE_NAME));
 	const newFile = {
 		id: generateID(),
 		name: fileName,
@@ -60,10 +66,12 @@ function newFileJSON(folderPath, fileName) {
 		path.join(folderPath, INDEX_FILE_NAME),
 		JSON.stringify(folderIndex)
 	);
+	return { id: newFile.id, name: newFile.name };
 }
 
 module.exports = {
 	initializeUserFolderJSON,
 	newFolderJSON,
 	newFileJSON,
+	INDEX_FILE_NAME,
 };

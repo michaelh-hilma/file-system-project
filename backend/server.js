@@ -33,7 +33,7 @@ app.post("/signup", async (req, res) => {
 			.status(400)
 			.send("Username cannot contain special characters");
 
-	const users = require("./data/users.json");
+	const users = require("./data/users.json") || [];
 	if (users.some((user) => user.username === username))
 		return res.status(400).send("Username already exists");
 
@@ -79,13 +79,15 @@ app.route("/:username*/file-:filename")
 		const path = req.params[0];
 		switch (req.body.type) {
 			case "info":
-				fileUtil
-					.getFileInfo(username, path, filename)
-					.then((data) => {
-						res.send(data);
-						res.end();
-					})
-					.catch((err) => res.status(404).send(err.message).end());
+				const response = await fileUtil.getFileInfo(
+					username,
+					path,
+					filename
+				);
+
+				if (response.err)
+					return res.status(404).send(err.message).end();
+				res.send(response.data).end();
 				break;
 			case "show":
 				fileUtil
@@ -126,11 +128,17 @@ app.route("/:username*/file-:filename")
 	});
 
 app.route("/:username*/folder-:foldername")
-	.post((req, res) => {
+	.post(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
-		res.json(fileUtil.getFolderInfo(username, path, foldername));
-		res.end();
+		const response = await fileUtil.getFolderInfo(
+			username,
+			path,
+			foldername
+		);
+
+		if (response.err) return res.status(404).send(err.message).end();
+		res.send(response.data).end();
 	})
 	.patch((req, res) => {
 		const { username, foldername } = req.params;
@@ -150,18 +158,26 @@ app.route("/:username*/folder-:foldername")
 		res.end();
 	});
 
-app.post("/:username*/folder", (req, res) => {
+app.post("/:username*/folder", async (req, res) => {
 	const { username } = req.params;
 	const path = req.params[0];
-	res.json(fileUtil.addFolder(username, path, req.body));
-	res.end();
+	const response = await fileUtil.addFolder(username, path, req.body);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json(response.data).end();
+	}
 });
 
-app.post("/:username*/file", (req, res) => {
+app.post("/:username*/file", async (req, res) => {
 	const { username } = req.params;
 	const path = req.params[0];
-	res.json(fileUtil.addFile(username, path, req.body));
-	res.end();
+	const response = await fileUtil.addFile(username, path, req.body);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json(response.data).end();
+	}
 });
 
 app.post("/:username", (req, res) => {
