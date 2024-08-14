@@ -77,13 +77,10 @@ app.route("/:username*/file-:filename")
 	.post(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
+		let response;
 		switch (req.body.type) {
 			case "info":
-				const response = await fileUtil.getFileInfo(
-					username,
-					path,
-					filename
-				);
+				response = await fileUtil.getFileInfo(username, path, filename);
 
 				if (response.err)
 					return res.status(404).send(err.message).end();
@@ -99,12 +96,14 @@ app.route("/:username*/file-:filename")
 					.catch((err) => res.status(404).send(err.message).end());
 				break;
 			case "copy":
-				res.json(fileUtil.copyFile(username, path, filename));
-				break;
-			default:
-				res.status(400).send(
-					'Type should be specified in request body, and should be one of "info", "show", or "copy"'
-				);
+				response = await fileUtil.copyFile(username, path, filename);
+				if (response.err) {
+					res.status(response.status)
+						.send(response.err.message)
+						.end();
+				} else {
+					res.send(response.data).end();
+				}
 				break;
 		}
 		//res.end();

@@ -1,8 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 const JSONUtil = require("./JSONUtil");
-const DATA_PATH = path.resolve(__dirname, "..", "data");
-const USER_FOLDER_PATH = path.join(DATA_PATH, "userFolders");
+const { DATA_PATH, USER_FOLDER_PATH } = require("./JSONUtil");
 
 /* 
   All util functions are asyncronous and return an object with 
@@ -34,7 +33,7 @@ async function updateUsers(users, newUser) {
 	await fs
 		.mkdir(newFolderPath)
 		.then(() => {
-			JSONUtil.initializeUserFolderJSON(newFolderPath);
+			JSONUtil.initializeUserFolderJSON(newUser.username);
 		})
 		.catch(
 			(err) =>
@@ -68,7 +67,7 @@ async function addFile(username, filePath, reqBody) {
 	if (result.err) return result;
 
 	const fileData = await JSONUtil.newFileJSON(
-		path.join(USER_FOLDER_PATH, username, filePath),
+		path.join(username, filePath),
 		reqBody.name
 	).catch((err) => {
 		result.status = 500;
@@ -97,7 +96,7 @@ async function addFolder(username, folderPath, reqBody) {
 	if (result.err) return result;
 
 	const folderData = await JSONUtil.newFolderJSON(
-		path.join(USER_FOLDER_PATH, username, folderPath),
+		path.join(username, folderPath),
 		reqBody.name
 	).catch((err) => {
 		result.status = 500;
@@ -142,23 +141,50 @@ async function getFileInfo(username, filePath, filename) {
 	return result;
 }
 
-function getFileContent(username, filePath, filename) {
+async function getFileContent(username, filePath, filename) {
 	console.log("IN getFileContent");
 }
 
-function copyFile(username, filePath, filename) {
-	console.log("IN copyFile");
+async function copyFile(username, filePath, filename) {
+	let result = {
+		status: 200,
+		err: null,
+		data: null,
+	};
+	try {
+		await fs.copyFile(
+			path.join(USER_FOLDER_PATH, username, filePath, filename),
+			path.join(USER_FOLDER_PATH, username, filePath, filename + "-copy")
+		);
+	} catch (err) {
+		result.status = 500;
+		result.err = err;
+	}
+
+	if (result.err) return result;
+
+	const fileData = await JSONUtil.newFileJSON(
+		path.join(username, filePath),
+		filename + "-copy"
+	).catch((err) => {
+		result.status = 500;
+		result.err = err;
+	});
+
+	if (!result.err) result.data = fileData;
+
+	return result;
 }
 
-function renameFile(username, filePath, filename, newName) {
+async function renameFile(username, filePath, filename, newName) {
 	console.log("IN renameFile");
 }
 
-function moveFile(username, filePath, filename, newPath) {
+async function moveFile(username, filePath, filename, newPath) {
 	console.log("IN moveFile");
 }
 
-function deleteFile(username, filePath, filename) {
+async function deleteFile(username, filePath, filename) {
 	console.log("IN deleteFile");
 }
 
@@ -175,16 +201,12 @@ async function getFolderInfo(username, folderPath, folderName) {
 	return result;
 }
 
-function renameFolder(username, folderPath, filename) {
+async function renameFolder(username, folderPath, filename) {
 	console.log("IN renameFolder");
 }
 
-function deleteFolder(username, folderPath, filename) {
+async function deleteFolder(username, folderPath, filename) {
 	console.log("IN deleteFolder");
-}
-
-function makeNewUserFolder(username) {
-	console.log("IN makeNewUserFolder");
 }
 
 function getPath(username, fpath, fname) {

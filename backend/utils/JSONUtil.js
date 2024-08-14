@@ -2,14 +2,16 @@ const fs = require("fs/promises");
 const path = require("path");
 const { generateID } = require("./util");
 const INDEX_FILE_NAME = "index.json";
+const DATA_PATH = path.resolve(__dirname, "..", "data");
+const USER_FOLDER_PATH = path.join(DATA_PATH, "userFolders");
 
-function initializeUserFolderJSON(userFolderPath, username) {
+function initializeUserFolderJSON(username) {
 	fs.writeFile(
-		path.join(userFolderPath, INDEX_FILE_NAME),
+		path.join(USER_FOLDER_PATH, username, INDEX_FILE_NAME),
 		JSON.stringify({
 			id: generateID(),
 			name: username,
-			path: userFolderPath,
+			path: "/",
 			creationDate: new Date().toISOString(),
 			contains: {
 				files: [],
@@ -32,12 +34,21 @@ async function newFolderJSON(folderPath, folderName) {
 	};
 	await fs
 		.writeFile(
-			path.join(folderPath, folderName, INDEX_FILE_NAME),
+			path.join(
+				USER_FOLDER_PATH,
+				folderPath,
+				folderName,
+				INDEX_FILE_NAME
+			),
 			JSON.stringify(newFolder)
 		)
 		.catch((err) => console.log("WAAAAA", err.message));
 
-	const parentIndex = require(path.join(folderPath, INDEX_FILE_NAME));
+	const parentIndex = require(path.join(
+		USER_FOLDER_PATH,
+		folderPath,
+		INDEX_FILE_NAME
+	));
 
 	parentIndex.contains.folders.push({
 		name: newFolder.name,
@@ -45,7 +56,7 @@ async function newFolderJSON(folderPath, folderName) {
 	});
 	await fs
 		.writeFile(
-			path.join(folderPath, INDEX_FILE_NAME),
+			path.join(USER_FOLDER_PATH, folderPath, INDEX_FILE_NAME),
 			JSON.stringify(parentIndex)
 		)
 		.catch((err) => console.log("WEEEEE", err.message));
@@ -54,7 +65,11 @@ async function newFolderJSON(folderPath, folderName) {
 }
 
 async function newFileJSON(folderPath, fileName) {
-	const folderIndex = await require(path.join(folderPath, INDEX_FILE_NAME));
+	const folderIndex = await require(path.join(
+		USER_FOLDER_PATH,
+		folderPath,
+		INDEX_FILE_NAME
+	));
 	const newFile = {
 		id: generateID(),
 		name: fileName,
@@ -63,7 +78,7 @@ async function newFileJSON(folderPath, fileName) {
 	};
 	folderIndex.contains.files.push(newFile);
 	fs.writeFile(
-		path.join(folderPath, INDEX_FILE_NAME),
+		path.join(USER_FOLDER_PATH, folderPath, INDEX_FILE_NAME),
 		JSON.stringify(folderIndex)
 	);
 	return { id: newFile.id, name: newFile.name };
@@ -74,4 +89,6 @@ module.exports = {
 	newFolderJSON,
 	newFileJSON,
 	INDEX_FILE_NAME,
+	DATA_PATH,
+	USER_FOLDER_PATH,
 };
