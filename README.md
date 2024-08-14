@@ -12,9 +12,11 @@
 
 # userid header - {'Authorization'}
 
-## Info POST /:username/:path/:filename {type:"info"}
+## Info POST /:username/:path/file-:filename {type:"info"}
 
 ## Show POST /:username/:path/file-:filename {type:"show"}
+
+## New POST /:username/:path/file
 
 ## Rename PATCH /:username/:path/file-:filename {name:newName}
 
@@ -29,6 +31,8 @@
 ## Show POST /:username/:path/folder-:foldername {userid}
 
 ## Show POST /:username {userid}
+
+## New POST /:username/:path/folder
 
 ## Enter //same as show different clientside view
 

@@ -22,7 +22,7 @@ app.post("/login", (req, res) => {
 	res.end(JSON.stringify({ username, id: users[userIndex].id }));
 });
 
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
 	const { username, password } = req.body;
 	if (!username || !password)
 		return res.status(400).send("Missing Username or Password!");
@@ -33,7 +33,7 @@ app.post("/signup", (req, res) => {
 			.status(400)
 			.send("Username cannot contain special characters");
 
-	const users = require("./data/users.json");
+	const users = require("./data/users.json") || [];
 	if (users.some((user) => user.username === username))
 		return res.status(400).send("Username already exists");
 
@@ -44,9 +44,13 @@ app.post("/signup", (req, res) => {
 		id: util.generateID(),
 	};
 	users.push(newUser);
-	fileUtil.updateUsers(users, __dirname);
-	res.json({ id: newUser.id, username: newUser.username });
-	res.end();
+
+	const response = await fileUtil.updateUsers(users, newUser);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json({ id: newUser.id, username: newUser.username }).end();
+	}
 });
 
 // check if user is authenticated
@@ -59,80 +63,171 @@ function authenticateUser(req, res, next) {
 				user.username === req.params.username
 		)
 	) {
-		res.status(403).send("User not authorized");
-		res.end();
+		res.status(403)
+			.send(
+				"User not authorized. Send user ID in Authorization field of request"
+			)
+			.end();
 	} else next();
 }
 
 app.all("/:username/*", authenticateUser);
 
 app.route("/:username*/file-:filename")
-	.post((req, res) => {
+	.post(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
+		let response;
 		switch (req.body.type) {
 			case "info":
-				res.json(fileUtil.getFileInfo(username, path, filename));
+				response = await fileUtil.getFileInfo(username, path, filename);
+
+				if (response.err)
+					return res.status(404).send(response.err.message).end();
+				res.send(response.data).end();
 				break;
 			case "show":
-				res.send(fileUtil.getFileContent(username, path, filename));
+				response = await fileUtil.getFileContent(
+					username,
+					path,
+					filename
+				);
+
+				if (response.err)
+					return res.status(404).send(response.err.message).end();
+				res.send(response.data).end();
 				break;
 			case "copy":
-				res.json(fileUtil.copyFile(username, path, filename));
-				break;
-			default:
-				res.status(400).send(
-					'Type should be specified in request body, and should be one of "info", "show", or "copy"'
-				);
+				response = await fileUtil.copyFile(username, path, filename);
+				if (response.err) {
+					res.status(response.status)
+						.send(response.err.message)
+						.end();
+				} else {
+					res.send(response.data).end();
+				}
 				break;
 		}
-		res.end();
+		//res.end();
 	})
-	.patch((req, res) => {
+	.patch(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
+		let response;
 		if (req.body.name) {
-			fileUtil.renameFile(username, path, filename, req.body.name);
-			res.end();
+			response = await fileUtil.renameFile(
+				username,
+				path,
+				filename,
+				req.body.name
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		} else if (req.body.path) {
-			fileUtil.moveFile(username, path, filename, req.body.path);
-			res.end();
+			response = await fileUtil.moveFile(
+				username,
+				path,
+				filename,
+				req.body.path
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		} else res.status(400).send("Missing name in body");
 	})
-	.delete((req, res) => {
+	.delete(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
-		fileUtil.deleteFile(username, path, filename);
-		res.end();
+		const response = await fileUtil.deleteFile(username, path, filename);
+
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
+		res.send(response.data).end();
 	});
 
 app.route("/:username*/folder-:foldername")
-	.post((req, res) => {
+	.post(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
-		res.json(fileUtil.getFolderInfo(username, path, foldername));
-		res.end();
+		const response = await fileUtil.getFolderInfo(
+			username,
+			path,
+			foldername
+		);
+
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
+		res.send(response.data).end();
 	})
-	.patch((req, res) => {
+	.patch(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
 		if (req.body.name) {
-			fileUtil.renameFolder(username, path, foldername, req.body.name);
-			res.end();
+			const response = await fileUtil.getFolderInfo(
+				username,
+				path,
+				foldername
+			);
+
+			if (response.err)
+				return res.status(404).send(response.err.message).end();
+			res.send(response.data).end();
 		}
 		res.status(400).send(
 			"Name should be specified in body for rename operation, and path should be specified for move operation"
 		);
 	})
-	.delete((req, res) => {
+	.delete(async (req, res) => {
 		const { username, foldername } = req.params;
 		const path = req.params[0];
-		fileUtil.deleteFolder(username, path, foldername);
-		res.end();
+		const response = await fileUtil.deleteFolder(
+			username,
+			path,
+			foldername
+		);
+
+		if (response.err)
+			return res.status(404).send(response.err.message).end();
+		res.send(response.data).end();
 	});
 
+app.post("/:username*/folder", async (req, res) => {
+	const { username } = req.params;
+	const path = req.params[0];
+	const response = await fileUtil.addFolder(
+		username,
+		path,
+		req.body.name,
+		req.body.data
+	);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json(response.data).end();
+	}
+});
+
+app.post("/:username*/file", async (req, res) => {
+	const { username } = req.params;
+	const path = req.params[0];
+	const response = await fileUtil.addFile(
+		username,
+		path,
+		req.body.name,
+		req.body.data
+	);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json(response.data).end();
+	}
+});
+
 app.post("/:username", (req, res) => {
-	res.json(fileUtil.getFolderInfo(req.params.username, null, null));
+	res.json(fileUtil.getFolderInfo(req.params.username, "", null));
 	res.end();
 });
 

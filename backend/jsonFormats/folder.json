@@ -1,27 +1,26 @@
 {
-  "id": 1,
-  "name": "text.txt",
-  "path": "/downloads/texts",
-  "creationDate": "18-10-2017T09:30:00Z",
-  "contains": {
-    "files": [
-      {
-        "id": 1,
-        "name": "text.txt",
-        "path": "/downloads/texts",
-        "creationDate": "18-10-2017T09:30:00Z",
-        "size": 345766
-      }
-    ],
-    "folders": [
-      {
-        "id": 1,
-        "name": "downloads"
-      },
-      {
-        "id": 2,
-        "name": "more-downloads"
-      }
-    ]
-  }
+	"id": 1,
+	"name": "text.txt",
+	"path": "/downloads/texts",
+	"creationDate": "18-10-2017T09:30:00Z",
+	"contains": {
+		"files": [
+			{
+				"id": 1,
+				"name": "text.txt",
+				"path": "/downloads/texts",
+				"creationDate": "18-10-2017T09:30:00Z"
+			}
+		],
+		"folders": [
+			{
+				"id": 1,
+				"name": "downloads"
+			},
+			{
+				"id": 2,
+				"name": "more-downloads"
+			}
+		]
+	}
 }
