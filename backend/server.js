@@ -22,7 +22,7 @@ app.post("/login", (req, res) => {
 	res.end(JSON.stringify({ username, id: users[userIndex].id }));
 });
 
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
 	const { username, password } = req.body;
 	if (!username || !password)
 		return res.status(400).send("Missing Username or Password!");
@@ -44,9 +44,13 @@ app.post("/signup", (req, res) => {
 		id: util.generateID(),
 	};
 	users.push(newUser);
-	fileUtil.updateUsers(users, __dirname);
-	res.json({ id: newUser.id, username: newUser.username });
-	res.end();
+
+	const response = await fileUtil.updateUsers(users, newUser);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json({ id: newUser.id, username: newUser.username }).end();
+	}
 });
 
 // check if user is authenticated
@@ -59,23 +63,38 @@ function authenticateUser(req, res, next) {
 				user.username === req.params.username
 		)
 	) {
-		res.status(403).send("User not authorized");
-		res.end();
+		res.status(403)
+			.send(
+				"User not authorized. Send user ID in Authorization field of request"
+			)
+			.end();
 	} else next();
 }
 
 app.all("/:username/*", authenticateUser);
 
 app.route("/:username*/file-:filename")
-	.post((req, res) => {
+	.post(async (req, res) => {
 		const { username, filename } = req.params;
 		const path = req.params[0];
 		switch (req.body.type) {
 			case "info":
-				res.json(fileUtil.getFileInfo(username, path, filename));
+				fileUtil
+					.getFileInfo(username, path, filename)
+					.then((data) => {
+						res.send(data);
+						res.end();
+					})
+					.catch((err) => res.status(404).send(err.message).end());
 				break;
 			case "show":
-				res.send(fileUtil.getFileContent(username, path, filename));
+				fileUtil
+					.getFileContent(username, path, filename)
+					.then((data) => {
+						res.send(data);
+						res.end();
+					})
+					.catch((err) => res.status(404).send(err.message).end());
 				break;
 			case "copy":
 				res.json(fileUtil.copyFile(username, path, filename));
@@ -86,7 +105,7 @@ app.route("/:username*/file-:filename")
 				);
 				break;
 		}
-		res.end();
+		//res.end();
 	})
 	.patch((req, res) => {
 		const { username, filename } = req.params;
@@ -131,8 +150,22 @@ app.route("/:username*/folder-:foldername")
 		res.end();
 	});
 
+app.post("/:username*/folder", (req, res) => {
+	const { username } = req.params;
+	const path = req.params[0];
+	res.json(fileUtil.addFolder(username, path, req.body));
+	res.end();
+});
+
+app.post("/:username*/file", (req, res) => {
+	const { username } = req.params;
+	const path = req.params[0];
+	res.json(fileUtil.addFile(username, path, req.body));
+	res.end();
+});
+
 app.post("/:username", (req, res) => {
-	res.json(fileUtil.getFolderInfo(req.params.username, null, null));
+	res.json(fileUtil.getFolderInfo(req.params.username, "", null));
 	res.end();
 });
 
