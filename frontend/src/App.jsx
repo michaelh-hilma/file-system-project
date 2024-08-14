@@ -1,17 +1,38 @@
-import { BrowserRouter, Route, Routes } from "react-router";
-import "./App.css";
+import { Route, Routes, useNavigate } from "react-router";
+import FileSystem from "./pages/FileSystem/FileSystem";
+import { createContext, useEffect, useState } from "react";
+import SignInPage from "./pages/SignInPage/SignInPage";
+import SignUpPage from "./pages/SignUpPage/SignUpPage";
+import FileSystemLayout from "./Layouts/FileSystemLayout";
+
+export const CurrentSignedInUserContext = createContext(null);
 
 function App() {
+  const [currentUserState, setCurrentUserState] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUserState.username && currentUserState.id)
+      navigate(currentUserState.username);
+  }, [currentUserState, navigate]);
+
   return (
-    <BrowserRouter>
+    <CurrentSignedInUserContext.Provider
+      value={[currentUserState, setCurrentUserState]}
+    >
       <Routes>
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/:userid" element={<FileSystemLayout />}>
-          <Route path="/:path" element={<FileSystem />} />
+        <Route
+          path={`/${
+            currentUserState.username ? currentUserState.username : ""
+          }`}
+          element={<FileSystemLayout />}
+        >
+          <Route path="/*" element={<FileSystem />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </CurrentSignedInUserContext.Provider>
   );
 }
 
