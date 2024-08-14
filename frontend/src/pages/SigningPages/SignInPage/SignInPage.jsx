@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useContext, useRef } from "react";
-import { CurrentSignedInUserContext } from "../../App";
 import { useNavigate } from "react-router";
 
-import "./SignInPage.css";
+import { CurrentSignedInUserContext } from "../../../constants";
+
+import "../SigningPages.css";
 
 function SignInPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);
@@ -40,23 +41,23 @@ function SignInPage() {
   };
 
   return (
-    <div className="sign-in-page">
-      <form className="sign-in-form" onSubmit={submitHandler}>
+    <div className="sign-page">
+      <form className="sign-form" onSubmit={submitHandler}>
         <input
-          className="sign-in-input"
+          className="sign-input"
           ref={usernameRef}
           type="text"
           placeholder="Username"
         />
         <input
-          className="sign-in-input"
+          className="sign-input"
           ref={passwordRef}
           type="password"
           placeholder="Password"
         />
-        <p className="sign-in-errormsg" ref={errorRef}></p>
-        <button className="sign-in-button" type="submit">
-          Login
+        <p className="sign-errormsg" ref={errorRef}></p>
+        <button className="sign-button" type="submit">
+          <span>Login</span>
         </button>
         <a
           onClick={(e) => {

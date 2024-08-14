@@ -1,0 +1,177 @@
+.InfoSideBarBackgroundBlur {
+  position: absolute;
+  right: 0;
+  top: 16vh;
+  width: 100vw;
+  background-color: transparent;
+  backdrop-filter: blur(6px);
+}
+
+.InfoSideBar {
+  margin-left: auto;
+  width: 25vw;
+  min-width: 470px;
+  height: 75vh;
+  background-color: rgb(0, 99, 99);
+  color: white;
+  padding: 18px;
+  border-radius: 12px 0 0 12px;
+  backdrop-filter: blur(6px);
+}
+.OpenInfoSideBar {
+  animation: openInfoSideBar 0.75s ease;
+}
+
+.InfoSideBar .exit {
+  color: red;
+  font-size: 34px;
+  transition: opacity 0.15s ease;
+  width: fit-content;
+}
+
+.InfoSideBar .exit:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.InfoSideBar > .svg {
+  background-image: url("../../../../svg/folder.svg");
+  background-size: 100% 100%;
+  width: 12vw;
+  height: 12vh;
+  min-width: 100px;
+  margin: auto;
+  filter: invert(100%);
+}
+
+.InfoSideBar > .svg.file {
+  background-image: url("../../../../svg/text-file.svg");
+}
+
+.InfoSideBar > .itemName > .Header {
+  font-size: 50px;
+  text-align: center;
+  text-shadow: 0px 0px 30px black;
+}
+
+.InfoSideBar > .itemName > div > input.Header {
+  font-size: 50px;
+  text-align: center;
+  text-shadow: 0px 0px 30px black;
+  width: 100%;
+  height: 8vh;
+  margin: auto;
+  background-color: transparent;
+  border: none;
+  color: white;
+  margin-left: 58px;
+}
+.InfoSideBar > .itemName > div > button {
+  font-size: 40px;
+  background-color: transparent;
+  border: none;
+  transition: all 0.35s ease;
+  margin: 0 12px;
+}
+.InfoSideBar > .itemName > div > button:hover {
+  color: rgb(0, 255, 0);
+  cursor: pointer;
+}
+
+.InfoSideBar > input.Header:-moz-focusring {
+  appearance: none;
+  border-style: solid;
+  border-radius: 12px;
+  outline: none;
+}
+.InfoSideBar > .content {
+  display: grid;
+  font-size: 28px;
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.InfoSideBar > .content span {
+  text-decoration: underline;
+  font-size: 32px;
+  opacity: 0.9;
+}
+.InfoSideBar > .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: fit-content;
+  margin: auto;
+  margin-top: 8vh;
+  align-items: center;
+  justify-content: center;
+}
+.InfoSideBar > .actions .input input {
+  flex-grow: 10;
+  background-color: transparent;
+
+  border: 1px solid blueviolet;
+  border-radius: 6px;
+
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  transition: all 0.35s ease;
+}
+.InfoSideBar > .actions .input button {
+  font-size: 40px;
+  background-color: transparent;
+  border: none;
+  transition: all 0.35s ease;
+  margin: 0 12px;
+}
+
+.InfoSideBar > .actions .input button:hover {
+  color: rgb(0, 255, 0);
+  cursor: pointer;
+}
+.InfoSideBar > .actions input:disabled {
+  opacity: 0;
+}
+.InfoSideBar > .actions input:disabled ~ button.confirm {
+  opacity: 0;
+}
+
+.InfoSideBar > .actions > button {
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+
+  color: antiquewhite;
+  font-size: 28px;
+
+  padding: 12px;
+
+  transition: all 0.35s ease;
+}
+
+.InfoSideBar > .actions > button:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.InfoSideBar > .actions > .delete:hover {
+  background-color: red;
+}
+
+.InfoSideBar > .actions > .duplicate:hover {
+  background-color: rgb(34, 200, 255);
+}
+
+.InfoSideBar > .actions > .move:hover {
+  background-color: rgb(81, 255, 0);
+}
+
+@keyframes openInfoSideBar {
+  0% {
+    transform: scale(0, 0.001);
+  }
+  50% {
+    transform: scale(1, 0.001);
+  }
+}
