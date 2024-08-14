@@ -1,16 +1,23 @@
 // General
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
-import { getInfo } from "../../constants";
+import {
+  CurrentFolderContext,
+  CurrentSignedInUserContext,
+  getInfo,
+  RefreshFileSystemDataContext,
+} from "../../constants";
 
 // Contexts
-import { CurrentSignedInUserContext } from "../../App";
-import { CurrentFolderContext } from "../../Layouts/FileSystemLayout";
 
 // Components
 import FolderCard from "./components/Folder/FolderCard/FolderCard";
 import FileCard from "./components/File/FileCard/FileCard";
+import InfoSideBar from "./components/InfoSideBar/InfoSideBar";
+
+import "./FileSystem.css";
+import NewItemDialog from "./components/NewItemDialog/NewItemDialog";
 
 function FileSystem() {
   const [currentUser] = useContext(CurrentSignedInUserContext);
@@ -20,7 +27,7 @@ function FileSystem() {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
 
-  useEffect(() => {
+  const getData = useCallback(() => {
     getInfo(location.pathname, currentUser.userId).then(
       (res) =>
         setCurrentFolder(res.data) &&
@@ -29,15 +36,23 @@ function FileSystem() {
     );
   }, [location, currentUser, setCurrentFolder]);
 
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
   return (
-    <div>
-      {folders.map((folder) => (
-        <FolderCard key={folder.id} folder={folder} />
-      ))}
-      {files.map((file) => (
-        <FileCard key={file.id} file={file} />
-      ))}
-    </div>
+    <RefreshFileSystemDataContext.Provider value={getData}>
+      <div className="FileSystemContainer">
+        {folders.map((folder) => (
+          <FolderCard key={folder.id} folder={folder} />
+        ))}
+        {files.map((file) => (
+          <FileCard key={file.id} file={file} />
+        ))}
+        <InfoSideBar />
+        <NewItemDialog />
+      </div>
+    </RefreshFileSystemDataContext.Provider>
   );
 }
 

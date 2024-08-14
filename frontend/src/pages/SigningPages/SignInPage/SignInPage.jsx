@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useContext, useRef } from "react";
-import { CurrentSignedInUserContext } from "../../../App";
 import { useNavigate } from "react-router";
+
+import { CurrentSignedInUserContext } from "../../../constants";
 
 import "../SigningPages.css";
 

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useContext, useRef } from "react";
-import { CurrentSignedInUserContext } from "../../../App";
 import { useNavigate } from "react-router";
 import "../SigningPages.css";
+import { CurrentSignedInUserContext } from "../../../constants";
 
 function SignUpPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);

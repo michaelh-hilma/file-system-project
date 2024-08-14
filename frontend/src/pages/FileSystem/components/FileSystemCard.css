@@ -1,0 +1,69 @@
+.FileSystemCard {
+  display: grid;
+  grid-template-areas:
+    "svg"
+    "content";
+  background-color: rgba(0, 0, 0, 0.055);
+  border-radius: 12px 6px;
+  width: 10vw;
+  max-width: 8vw;
+  min-width: 150px;
+  height: 6vh;
+  min-height: 180px;
+  padding: 12px;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  text-rendering: geometricPrecision;
+  transition: transform 0.35s ease;
+}
+
+.FileSystemCard:hover {
+  cursor: pointer;
+  transform: translateZ(0) rotateY(-15deg) rotateX(-15deg);
+}
+
+.FileSystemCard .svg.file {
+  background-image: url("../../../svg/text-file.svg");
+}
+.FileSystemCard .svg {
+  background-image: url("../../../svg/folder.svg");
+  background-size: 100% 100%;
+  width: 8vw;
+  height: 8vh;
+  min-width: 100px;
+  grid-area: svg;
+  place-self: start center; /* Align SVG to the start (top) */
+  opacity: 0.6;
+}
+.FileSystemCard .svg object {
+  width: 8vw;
+  height: 8vh;
+  min-width: 100px;
+}
+.FileSystemCard .svg object *:hover {
+  cursor: pointer !important;
+}
+.FileSystemCard .content {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+}
+
+.FileSystemCard .name {
+  color: rgb(0, 0, 151);
+  text-align: center;
+}
+
+.FileSystemCard .FileSubTitle {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.FileSystemCard .id {
+  font-size: 8px;
+  text-align: center;
+
+  margin-top: auto;
+  margin-left: auto;
+  justify-self: flex-end;
+}
