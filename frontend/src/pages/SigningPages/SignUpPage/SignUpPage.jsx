@@ -2,7 +2,7 @@ import axios from "axios";
 import { useContext, useRef } from "react";
 import { useNavigate } from "react-router";
 import "../SigningPages.css";
-import { CurrentSignedInUserContext } from "../../../constants";
+import { CurrentSignedInUserContext, MAIN_URL } from "../../../constants";
 
 function SignUpPage() {
   const [, setCurrentUser] = useContext(CurrentSignedInUserContext);
@@ -28,12 +28,11 @@ function SignUpPage() {
       return showError("Passwords cannot be shorter than 3 characters.");
     if (password != repeatPasswordRef.current.value)
       return showError("The passwords don't match!");
+    console.log("/signup");
     axios
-      .post("/signup", { username, password })
+      .post(MAIN_URL + "/signup", { username, password }, {})
       .then((res) =>
-        res.status == 200
-          ? setCurrentUser(res.data)
-          : showError(res.data.errorMessage)
+        res.status == 200 ? setCurrentUser(res.data) : showError(res.data.err)
       )
       .catch(
         (err) =>

@@ -7,7 +7,7 @@ export const CurrentInfoSideBarItemContext = createContext();
 export const CurrentFolderContext = createContext();
 export const CurrentSignedInUserContext = createContext(null);
 
-export const MAIN_URL = "http://localhost:3000/";
+export const MAIN_URL = "http://localhost:3000";
 export const getUrl = (path) => MAIN_URL + path;
 
 export const getInfo = (path, userid) =>

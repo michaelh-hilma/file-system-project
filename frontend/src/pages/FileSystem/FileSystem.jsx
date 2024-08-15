@@ -28,17 +28,25 @@ function FileSystem() {
   const [folders, setFolders] = useState([]);
 
   const getData = useCallback(() => {
-    getInfo(location.pathname, currentUser.userId).then(
-      (res) =>
-        setCurrentFolder(res.data) &&
-        setFiles(res.data.contains.files) &&
-        setFolders(res.data.contains.folders)
+    getInfo(location.pathname, currentUser.userId).then((res) =>
+      res
+        ? setCurrentFolder(res.data) &&
+          setFiles(res.data.contains.files) &&
+          setFolders(res.data.contains.folders)
+        : null
     );
   }, [location, currentUser, setCurrentFolder]);
 
   useEffect(() => {
-    getData();
-  }, [getData]);
+    getInfo(location.pathname, currentUser.userId).then((res) =>
+      res
+        ? setCurrentFolder(res.data) &&
+          setFiles(res.data.contains.files) &&
+          setFolders(res.data.contains.folders)
+        : null
+    );
+    console.log("ran fs", [location.pathname, currentUser, setCurrentFolder]);
+  }, []);
 
   return (
     <RefreshFileSystemDataContext.Provider value={getData}>

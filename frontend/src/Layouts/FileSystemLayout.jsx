@@ -54,7 +54,7 @@ function FileSystemLayout() {
       tempPaths.shift();
       return tempPaths;
     });
-  }, [getUrlPaths, setLocationPaths, currentUser, location, navigate]);
+  }, [getUrlPaths, setLocationPaths, currentUser, location.pathname, navigate]);
 
   const HomeButtonClickHandler = () => {
     //navigate to user home (should be localhost:3000/username-here)
@@ -65,7 +65,9 @@ function FileSystemLayout() {
   };
 
   const NewItemClickHandler = () => {
-    setIsCreatingNewItem(true);
+    console.log("new item");
+    setIsCreatingNewItem(() => true);
+    console.log(isCreatingNewItem);
   };
 
   const currentFolderInfo = () => {

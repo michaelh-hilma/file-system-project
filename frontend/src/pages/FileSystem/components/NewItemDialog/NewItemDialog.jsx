@@ -1,7 +1,8 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   CreatingNewItemContext,
   CurrentSignedInUserContext,
+  MAIN_URL,
   RefreshFileSystemDataContext,
 } from "../../../../constants";
 
@@ -22,7 +23,7 @@ function NewItemDialog() {
   const location = useLocation();
 
   const getItemWithPath = () =>
-    `${currentUser.username}${location.pathname.substring(
+    `${MAIN_URL}/${currentUser.username}${location.pathname.substring(
       location.pathname.indexOf("/")
     )}/${choosenOption}`;
 
@@ -65,7 +66,7 @@ function NewItemDialog() {
         }
       });
   };
-
+  useEffect(() => console.log(isCreating), [isCreating]);
   return isCreating ? (
     <div className="NewItemDialogBackdrop">
       <div className="NewItemDialog">
