@@ -229,9 +229,13 @@ app.post("/:username*/file", async (req, res) => {
 	}
 });
 
-app.post("/:username", (req, res) => {
-	res.json(fileUtil.getFolderInfo(req.params.username, "", ""));
-	res.end();
+app.post("/:username", async (req, res) => {
+	const response = await fileUtil.getFolderInfo(req.params.username);
+	if (response.err) {
+		res.status(response.status).send(response.err.message).end();
+	} else {
+		res.json(response.data).end();
+	}
 });
 
 app.listen(3000);

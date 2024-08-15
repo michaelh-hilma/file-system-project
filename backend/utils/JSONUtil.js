@@ -75,7 +75,7 @@ async function newFileJSON(username, folderPath, fileName) {
 	const newFile = {
 		id: generateID(),
 		name: fileName,
-		path: folderPath,
+		path: "/" + username + folderPath,
 		creationDate: new Date().toISOString(),
 	};
 	folderIndex.contains.files.push(newFile);
@@ -192,6 +192,33 @@ async function moveFileJSON(username, folderPath, filename, newPath) {
 	return fileToMove;
 }
 
+async function renameFolderJSON(username, folderPath, folderName, newName) {
+	console.log(
+		"username, folderPath, folderName, newName:",
+		username,
+		folderPath,
+		folderName,
+		newName
+	);
+	const folderIndex = await require(path.join(
+		USER_FOLDER_PATH,
+		username,
+		folderPath,
+		newName,
+		INDEX_FILE_NAME
+	));
+	folderIndex.name = newName;
+	folderIndex.path = path.join(path.dirname(folderIndex.path), newName);
+	folderIndex.contains.files.forEach((file) => {
+		file.path = path.join(path.dirname(file.path), newName);
+	});
+	fs.writeFile(
+		path.join(USER_FOLDER_PATH, username, folderPath, INDEX_FILE_NAME),
+		JSON.stringify(folderIndex)
+	);
+	return folderIndex;
+}
+
 module.exports = {
 	initializeUserFolderJSON,
 	newFolderJSON,
@@ -200,6 +227,7 @@ module.exports = {
 	deleteFolderJSON,
 	renameFileJSON,
 	moveFileJSON,
+	renameFolderJSON,
 	INDEX_FILE_NAME,
 	DATA_PATH,
 	USER_FOLDER_PATH,
