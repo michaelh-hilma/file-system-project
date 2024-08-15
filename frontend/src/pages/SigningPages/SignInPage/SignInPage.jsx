@@ -2,7 +2,7 @@ import axios from "axios";
 import { useContext, useRef } from "react";
 import { useNavigate } from "react-router";
 
-import { CurrentSignedInUserContext } from "../../../constants";
+import { CurrentSignedInUserContext, MAIN_URL } from "../../../constants";
 
 import "../SigningPages.css";
 
@@ -26,18 +26,18 @@ function SignInPage() {
     if (
       username.length < 3 ||
       username.length > 20 ||
-      (username == "signup") | "signin"
+      (username == "signup") | (username == "signin")
     )
       return showDefaultError();
     if (password.length < 3) return showDefaultError();
     axios
-      .post("/login", { username, password })
+      .post(MAIN_URL + "/login", { username, password }, {})
       .then((res) =>
         res !== undefined && res.status == 200
           ? setCurrentUser(res.data)
           : showDefaultError()
       )
-      .catch((err) => showDefaultError() && console.log(err));
+      .catch((err) => showDefaultError() && console.log("Error: ", err));
   };
 
   return (

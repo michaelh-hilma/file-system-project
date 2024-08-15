@@ -2,6 +2,7 @@ import { useContext, useRef, useState } from "react";
 import {
   CurrentInfoSideBarItemContext,
   CurrentSignedInUserContext,
+  MAIN_URL,
   RefreshFileSystemDataContext,
   sizeSizeConversionHandler,
 } from "../../../../constants";
@@ -51,7 +52,7 @@ function InfoSideBar() {
   };
 
   const getItemWithPath = () =>
-    `${currentUser.username}${itemData.path}/${
+    `${MAIN_URL}/${currentUser.username}${itemData.path}/${
       currentItem.type != "file" ? "folder" : "file"
     }-${itemData.id}`;
 
