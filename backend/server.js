@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const util = require("./utils/util");
 const fileUtil = require("./utils/fileUtil");
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 
 // check login and signup
 
@@ -166,15 +168,16 @@ app.route("/:username*/folder-:foldername")
 		const { username, foldername } = req.params;
 		const path = req.params[0];
 		if (req.body.name) {
-			const response = await fileUtil.getFolderInfo(
+			const response = await fileUtil.renameFolder(
 				username,
 				path,
-				foldername
+				foldername,
+				req.body.name
 			);
 
 			if (response.err)
 				return res.status(404).send(response.err.message).end();
-			res.send(response.data).end();
+			return res.send(response.data).end();
 		}
 		res.status(400).send(
 			"Name should be specified in body for rename operation, and path should be specified for move operation"
@@ -227,7 +230,7 @@ app.post("/:username*/file", async (req, res) => {
 });
 
 app.post("/:username", (req, res) => {
-	res.json(fileUtil.getFolderInfo(req.params.username, "", null));
+	res.json(fileUtil.getFolderInfo(req.params.username, "", ""));
 	res.end();
 });
 
