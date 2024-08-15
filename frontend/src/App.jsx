@@ -10,6 +10,15 @@ function App() {
   const [currentUserState, setCurrentUserState] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
+  const dynamicFolderRouter = `/${
+    currentUserState.id && currentUserState.username
+      ? location.pathname.substring(currentUserState.username.length + 1) === ""
+        ? `${currentUserState.username}`
+        : `${currentUserState.username}${location.pathname.substring(
+            currentUserState.username.length + 1
+          )}`
+      : "*"
+  }`;
 
   useEffect(() => {
     if (
@@ -19,7 +28,6 @@ function App() {
     )
       navigate(`/${currentUserState.username}`);
   }, [currentUserState, location.pathname, navigate]);
-
   return (
     <CurrentSignedInUserContext.Provider
       value={[currentUserState, setCurrentUserState]}
@@ -27,8 +35,15 @@ function App() {
       <Routes>
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/*" element={<FileSystemLayout />}>
-          <Route path="/*/:folderpath" element={<FileSystem />} />
+        <Route
+          path={`/${
+            currentUserState.username && currentUserState.id
+              ? currentUserState.username
+              : "*"
+          }`}
+          element={<FileSystemLayout />}
+        >
+          <Route path={dynamicFolderRouter} element={<FileSystem />} />
         </Route>
       </Routes>
     </CurrentSignedInUserContext.Provider>

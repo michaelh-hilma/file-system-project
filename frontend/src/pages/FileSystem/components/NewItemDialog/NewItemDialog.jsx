@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import {
   CreatingNewItemContext,
   CurrentSignedInUserContext,
@@ -19,54 +19,75 @@ function NewItemDialog() {
 
   const itemName = useRef();
   const itemData = useRef();
+  const errorRef = useRef();
 
   const location = useLocation();
 
   const getItemWithPath = () =>
-    `${MAIN_URL}/${currentUser.username}${location.pathname.substring(
+    `${MAIN_URL}${location.pathname.substring(
       location.pathname.indexOf("/")
     )}/${choosenOption}`;
 
   const createNewItem = () => {
     if (choosenOption == "") return;
+
     if (
-      !itemName.current.value ||
-      itemName.current.value == "" ||
-      itemName.current.value.match(/^ *$/) !== null
+      choosenOption === "folder" &&
+      (!itemName.current.value ||
+        itemName.current.value == "" ||
+        itemName.current.value.match(/^ *$/) !== null)
     )
       return (itemName.current.style.border = "2px solid red");
-    axios
-      .post(
-        getItemWithPath(),
-        choosenOption === "file"
-          ? { name: itemName.current.value, data: itemData.current.value }
-          : { name: itemName.current.value },
-        {
-          headers: {
-            Authorization: currentUser.id,
-          },
-        }
-      )
-      .then(() => {
-        setIsCreating(false);
-        setChoosenOption("");
-        itemName.current = "";
-        itemData.current = "";
 
-        refreshData();
-      })
-      .catch((err) => {
-        if (err) {
-          alert("something went wrong, please try again later.");
+    if (choosenOption === "file" && itemData.current.value === "")
+      return alert("please upload a file");
+
+    const sendPost = (fileText) => {
+      axios
+        .post(
+          getItemWithPath(),
+          choosenOption === "file"
+            ? {
+                name: itemData.current.files[0].name,
+                data: fileText,
+              }
+            : { name: itemName.current.value },
+          {
+            headers: {
+              Authorization: currentUser.id,
+            },
+          }
+        )
+        .then(() => {
           setIsCreating(false);
           setChoosenOption("");
           itemName.current = "";
           itemData.current = "";
-          console.log(err);
-        }
-      });
+
+          refreshData();
+        })
+        .catch((err) => {
+          if (err) {
+            if (err.response) errorRef.current.textContent = err.response.data;
+            else {
+              alert("something went wrong, please try again later.");
+              setIsCreating(false);
+              setChoosenOption("");
+              itemName.current = "";
+              itemData.current = "";
+              console.log(err);
+            }
+          }
+        });
+    };
+    if (choosenOption === "file") {
+      const fileReader = new FileReader();
+      fileReader.readAsText(itemData.current.files[0]);
+      fileReader.onload = () => {
+        return sendPost(fileReader.result);
+      };
+    } else sendPost();
   };
-  useEffect(() => console.log(isCreating), [isCreating]);
   return isCreating ? (
     <div className="NewItemDialogBackdrop">
       <div className="NewItemDialog">
@@ -93,11 +114,6 @@ function NewItemDialog() {
               &#8592;
             </div>
             <div className={`svg ${choosenOption}`}></div>
-            <input
-              ref={itemName}
-              type="text"
-              placeholder={`New ${choosenOption}`}
-            />
             {choosenOption == "file" ? (
               <>
                 <label className="newFileInput" htmlFor="fileinput">
@@ -106,11 +122,16 @@ function NewItemDialog() {
                 <input ref={itemData} id="fileinput" type="file" />
               </>
             ) : (
-              <></>
+              <input
+                ref={itemName}
+                type="text"
+                placeholder={`New ${choosenOption}`}
+              />
             )}
             <button onClick={createNewItem} className="confirm">
               Confirm
             </button>
+            <div ref={errorRef} className="error"></div>
           </div>
         )}
       </div>

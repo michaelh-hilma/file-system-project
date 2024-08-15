@@ -7,6 +7,21 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // update to match the domain you will make the request from
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 // check login and signup
 
 app.post("/login", (req, res) => {
@@ -86,7 +101,8 @@ app
 
         if (response.err)
           return res.status(404).send(response.err.message).end();
-        res.send(response.data).end();
+
+        res.json(response.data).end();
         break;
       case "show":
         response = await fileUtil.getFileContent(username, path, filename);
@@ -183,6 +199,7 @@ app
 app.post("/:username*/folder", async (req, res) => {
   const { username } = req.params;
   const path = req.params[0];
+  console.log(path);
   const response = await fileUtil.addFolder(
     username,
     path,
@@ -195,7 +212,6 @@ app.post("/:username*/folder", async (req, res) => {
     res.json(response.data).end();
   }
 });
-
 app.post("/:username*/file", async (req, res) => {
   const { username } = req.params;
   const path = req.params[0];
@@ -212,12 +228,12 @@ app.post("/:username*/file", async (req, res) => {
   }
 });
 
-app.post("/:username", async (req, res) => {
+app.post("/:username", authenticateUser, async (req, res) => {
   const response = await fileUtil.getFolderInfo(req.params.username);
   if (response.err) {
     res.status(response.status).send(response.err.message).end();
   } else {
-    res.json(response.data).end();
+    res.status(200).json(response.data).end();
   }
 });
 

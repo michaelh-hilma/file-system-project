@@ -44,7 +44,7 @@ function FileSystemLayout() {
       return navigate("signin");
     if (
       currentUser.username !=
-      location.pathname.substring(0, location.pathname.indexOf("/"))
+      location.pathname.substring(1, currentUser.username.length + 1)
     )
       navigate(currentUser.username);
 
@@ -65,13 +65,10 @@ function FileSystemLayout() {
   };
 
   const NewItemClickHandler = () => {
-    console.log("new item");
     setIsCreatingNewItem(() => true);
-    console.log(isCreatingNewItem);
   };
 
   const currentFolderInfo = () => {
-    console.log(currentFolderState);
     setCurrentInfoSideBarItemState({
       type: "folder",
       data: currentFolderState,
@@ -115,7 +112,7 @@ function FileSystemLayout() {
                       key={index}
                       onClick={() => navigate(`/${currentUser.username}`)}
                     >
-                      {location.pathname}
+                      /home
                     </span>
                   )
                 ) : null
