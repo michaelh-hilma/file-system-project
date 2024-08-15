@@ -9,7 +9,7 @@ import {
 
 import "./InfoSideBar.css";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 function InfoSideBar() {
   const [currentUser] = useContext(CurrentSignedInUserContext);
@@ -27,6 +27,7 @@ function InfoSideBar() {
   const [isEditingFilePath, setIsEditingFilePath] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const exitInfoSideBar = () => {
     setIsEditingFileName(false);
@@ -37,9 +38,14 @@ function InfoSideBar() {
 
   const errorHandler = (err) => {
     if (err) {
-      alert("Something went wrong, please try again later.");
-      exitInfoSideBar();
       console.log(err);
+      if (err.response.data) errorRef.current.textContent = err.response.data;
+      else {
+        alert(
+          "Something went wrong with the actions u just made, please try again later.\n"
+        );
+        exitInfoSideBar();
+      }
     }
   };
 
@@ -52,24 +58,30 @@ function InfoSideBar() {
   };
 
   const getItemWithPath = () =>
-    `${MAIN_URL}/${currentUser.username}${itemData.path}/${
-      currentItem.type != "file" ? "folder" : "file"
-    }-${itemData.id}`;
+    `${MAIN_URL}/${currentUser.username}${
+      itemData.path !== "/" ? `${itemData.path}/` : itemData.path
+    }${currentItem.type != "file" ? "folder" : "file"}-${itemData.name}`;
 
   const PostData = (data) =>
     axios
       .post(getItemWithPath(), data, AuthenticationHeader())
       .catch(errorHandler);
+  const PatchData = (data) =>
+    axios
+      .patch(getItemWithPath(), data, AuthenticationHeader())
+      .catch(errorHandler);
 
   const changeItemName = () => {
     setIsEditingFileName(false);
-    PostData({
-      newName: itemNameRef.current.value,
+    PatchData({
+      name: itemNameRef.current.value,
     }).then((res) => {
-      setCurrentItem((item) => {
-        return { ...item, data: res.data };
-      });
-      refreshData();
+      if (res) {
+        setCurrentItem((item) => {
+          return { ...item, data: res.data };
+        });
+        refreshData();
+      }
     });
   };
 
@@ -77,6 +89,11 @@ function InfoSideBar() {
     axios
       .delete(getItemWithPath(), AuthenticationHeader())
       .then(() => {
+        if (
+          itemData.name ===
+          location.pathname.substring(location.pathname.lastIndexOf("/") + 1)
+        )
+          navigate(`/${currentUser.username}`);
         setCurrentItem({});
         refreshData();
       })
@@ -90,17 +107,13 @@ function InfoSideBar() {
   };
 
   const moveItem = () => {
-    PostData({ path: itemPathRef.current.value })
-      .then((res) =>
-        res.status != 404
-          ? setIsEditingFilePath(false)
-          : (errorRef.current.contentText = "Could not find directory.")
-      )
-      .then(() =>
-        currentItem.type === "folder"
-          ? navigate(itemPathRef.current.value)
-          : undefined
-      );
+    PatchData({ path: itemPathRef.current.value }).then((res) => {
+      if (res && res.status != 404) {
+        setIsEditingFilePath(false);
+        setCurrentItem({});
+        refreshData();
+      } else errorRef.current.contentText = "Could not find directory.";
+    });
   };
 
   return itemData && itemData.id ? (
@@ -164,15 +177,21 @@ function InfoSideBar() {
           <button onClick={deleteItem} className="delete">
             &#128465; Delete
           </button>
-          <button onClick={copyItem} className="duplicate">
-            &#128203; Duplicate
-          </button>
-          <button
-            onClick={() => setIsEditingFilePath((prevEdit) => !prevEdit)}
-            className="move"
-          >
-            &#10132; Move
-          </button>
+          {currentItem.type === "file" ? (
+            <>
+              <button onClick={copyItem} className="duplicate">
+                &#128203; Duplicate
+              </button>
+              <button
+                onClick={() => setIsEditingFilePath((prevEdit) => !prevEdit)}
+                className="move"
+              >
+                &#10132; Move
+              </button>
+            </>
+          ) : (
+            <></>
+          )}
           <div className="input">
             <input
               ref={itemPathRef}

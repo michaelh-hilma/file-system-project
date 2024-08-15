@@ -28,18 +28,12 @@ function SignUpPage() {
       return showError("Passwords cannot be shorter than 3 characters.");
     if (password != repeatPasswordRef.current.value)
       return showError("The passwords don't match!");
-    console.log("/signup");
     axios
       .post(MAIN_URL + "/signup", { username, password }, {})
       .then((res) =>
         res.status == 200 ? setCurrentUser(res.data) : showError(res.data.err)
       )
-      .catch(
-        (err) =>
-          showError(
-            "An error accured while trying to contact the server, please try again later."
-          ) && console.log(err)
-      );
+      .catch((err) => showError(err.response.data) && console.log(err));
   };
 
   return (

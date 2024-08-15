@@ -1,6 +1,6 @@
 // General
 import { useCallback, useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import {
   CurrentFolderContext,
@@ -23,30 +23,34 @@ function FileSystem() {
   const [currentUser] = useContext(CurrentSignedInUserContext);
   const [, setCurrentFolder] = useContext(CurrentFolderContext);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
 
   const getData = useCallback(() => {
-    getInfo(location.pathname, currentUser.userId).then((res) =>
-      res
-        ? setCurrentFolder(res.data) &&
-          setFiles(res.data.contains.files) &&
-          setFolders(res.data.contains.folders)
-        : null
-    );
-  }, [location, currentUser, setCurrentFolder]);
+    if (currentUser.id) {
+      let index = location.pathname.lastIndexOf("/");
+      let folder = location.pathname;
+      if (index != 0)
+        folder =
+          location.pathname.slice(0, index + 1) +
+          "folder-" +
+          location.pathname.slice(index + 1);
+
+      getInfo(folder, currentUser.id, navigate).then((res) => {
+        if (res && res.status === 200) {
+          setCurrentFolder(res.data);
+          setFiles(res.data.contains.files);
+          setFolders(res.data.contains.folders);
+        }
+      });
+    }
+  }, [location, currentUser, setCurrentFolder, navigate]);
 
   useEffect(() => {
-    getInfo(location.pathname, currentUser.userId).then((res) =>
-      res
-        ? setCurrentFolder(res.data) &&
-          setFiles(res.data.contains.files) &&
-          setFolders(res.data.contains.folders)
-        : null
-    );
-    console.log("ran fs", [location.pathname, currentUser, setCurrentFolder]);
-  }, []);
+    getData();
+  }, [currentUser.id, location.pathname, setCurrentFolder, navigate, getData]);
 
   return (
     <RefreshFileSystemDataContext.Provider value={getData}>
