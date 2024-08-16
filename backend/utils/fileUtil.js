@@ -299,6 +299,7 @@ async function moveFile(username, filePath, filename, newPath) {
     err: null,
     data: null,
   };
+
   try {
     await fs.access(path.join(USER_FOLDER_PATH, username, newPath));
   } catch (err) {

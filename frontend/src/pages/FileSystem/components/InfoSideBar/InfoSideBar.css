@@ -100,12 +100,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  row-gap: 0px;
   width: fit-content;
   margin: auto;
   margin-top: 8vh;
   align-items: center;
   justify-content: center;
 }
+
 .InfoSideBar > .actions .input input {
   flex-grow: 10;
   background-color: transparent;

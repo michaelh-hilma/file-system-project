@@ -5,11 +5,11 @@ const fileUtil = require("./utils/fileUtil");
 const cors = require("cors");
 
 app.use(express.json());
-app.use(cors());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    credentials: true,
+    origin: ["http://localhost:5173"],
   })
 );
 
@@ -100,7 +100,7 @@ app
         response = await fileUtil.getFileInfo(username, path, filename);
 
         if (response.err)
-          return res.status(404).send(response.err.message).end();
+          return res.status(response.status).send(response.err.message).end();
 
         res.json(response.data).end();
         break;
@@ -108,7 +108,7 @@ app
         response = await fileUtil.getFileContent(username, path, filename);
 
         if (response.err)
-          return res.status(404).send(response.err.message).end();
+          return res.status(response.status).send(response.err.message).end();
         res.send(response.data).end();
         break;
       case "copy":
@@ -134,7 +134,8 @@ app
         req.body.name
       );
 
-      if (response.err) return res.status(404).send(response.err.message).end();
+      if (response.err)
+        return res.status(response.status).send(response.err.message).end();
       res.send(response.data).end();
     } else if (req.body.path) {
       response = await fileUtil.moveFile(
@@ -144,8 +145,9 @@ app
         req.body.path
       );
 
-      if (response.err) return res.status(404).send(response.err.message).end();
-      res.send(response.data).end();
+      if (response.err)
+        return res.status(response.status).send(response.err.message).end();
+      return res.send(response.data).end();
     } else res.status(400).send("Missing name in body");
   })
   .delete(async (req, res) => {
@@ -153,7 +155,8 @@ app
     const path = req.params[0];
     const response = await fileUtil.deleteFile(username, path, filename);
 
-    if (response.err) return res.status(404).send(response.err.message).end();
+    if (response.err)
+      return res.status(response.status).send(response.err.message).end();
     res.send(response.data).end();
   });
 
@@ -164,7 +167,8 @@ app
     const path = req.params[0];
     const response = await fileUtil.getFolderInfo(username, path, foldername);
 
-    if (response.err) return res.status(404).send(response.err.message).end();
+    if (response.err)
+      return res.status(response.status).send(response.err.message).end();
     res.send(response.data).end();
   })
   .patch(async (req, res) => {
@@ -178,7 +182,8 @@ app
         req.body.name
       );
 
-      if (response.err) return res.status(404).send(response.err.message).end();
+      if (response.err)
+        return res.status(response.status).send(response.err.message).end();
       return res.send(response.data).end();
     }
     res
@@ -192,14 +197,14 @@ app
     const path = req.params[0];
     const response = await fileUtil.deleteFolder(username, path, foldername);
 
-    if (response.err) return res.status(404).send(response.err.message).end();
+    if (response.err)
+      return res.status(response.status).send(response.err.message).end();
     res.send(response.data).end();
   });
 
 app.post("/:username*/folder", async (req, res) => {
   const { username } = req.params;
   const path = req.params[0];
-  console.log(path);
   const response = await fileUtil.addFolder(
     username,
     path,

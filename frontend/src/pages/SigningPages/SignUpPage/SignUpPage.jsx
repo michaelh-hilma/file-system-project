@@ -33,7 +33,12 @@ function SignUpPage() {
       .then((res) =>
         res.status == 200 ? setCurrentUser(res.data) : showError(res.data.err)
       )
-      .catch((err) => showError(err.response.data) && console.log(err));
+      .catch((err) => {
+        if (err && typeof err.response !== "undefined") {
+          showError(err.response.data);
+          console.log(err);
+        }
+      });
   };
 
   return (

@@ -20,12 +20,12 @@ export const getInfo = (path, userid, navigate) => {
       }
     )
     .catch((err) => {
-      if (err) {
+      if (err && typeof err.response !== "undefined") {
         alert(
           "Failed to catch info from server.\nPlease try again later. \n" + err
         );
         navigate("/signin");
-      }
+      } else return err;
     });
 };
 

@@ -3,7 +3,13 @@
   grid-template-areas:
     "svg"
     "content";
-  background-color: rgba(0, 0, 0, 0.055);
+  background: linear-gradient(
+    hsla(0, 0%, 0%, 0.07),
+    hsla(0, 0%, 0%, 0.07) 50%,
+    #2ecc71 50%,
+    #2ecc71
+  );
+  background-size: 100% 200%;
   border-radius: 12px 6px;
   width: 10vw;
   max-width: 8vw;
@@ -13,13 +19,25 @@
   padding: 12px;
   perspective: 800px;
   transform-style: preserve-3d;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
   text-rendering: geometricPrecision;
-  transition: transform 0.35s ease;
+  transition: all 0.35s ease;
+}
+.FileSystemCard.showed {
+  animation: fadeIn 0.35s ease;
+}
+.downloadMovement {
+  animation-delay: 0.25s;
+  animation: moveBackground 1.2s ease;
+}
+.flip {
+  transform: rotateY(180deg);
 }
 
-.FileSystemCard:hover {
+.FileSystemCard:not(.flip):hover {
   cursor: pointer;
-  transform: translateZ(0) rotateY(-15deg) rotateX(-15deg);
+  box-shadow: -8px 6px 10px 0px rgba(0, 0, 0, 0.25);
+  transform: rotateZ(0) rotateY(-12deg) rotateX(-12deg);
 }
 
 .FileSystemCard .svg.file {
@@ -66,4 +84,65 @@
   margin-top: auto;
   margin-left: auto;
   justify-self: flex-end;
+}
+
+.FileSystemCard .backside {
+  opacity: 0;
+  transform: rotateY(-180deg);
+  transition: opacity 0.2s ease;
+  position: absolute;
+  display: grid;
+  color: black;
+  background-color: rgb(200, 244, 255);
+  border-radius: 6px 12px;
+  padding: 12px;
+  width: 10vw;
+  max-width: 8vw;
+  min-width: 150px;
+  height: 6vh;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  z-index: -1;
+}
+.FileSystemCard.flip .backside {
+  opacity: 1;
+  z-index: 1;
+}
+
+.FileSystemCard .backside button {
+  width: fit-content;
+  font-size: 20px;
+  padding: 6px 24px;
+  margin: auto;
+  border: none;
+  border-radius: 8px;
+}
+
+.FileSystemCard .backside button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.FileSystemCard .backside button.confirm {
+  background-color: rgb(9, 255, 0);
+}
+
+.FileSystemCard .backside button.deny {
+  background-color: rgb(255, 0, 0);
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes moveBackground {
+  100% {
+    background-position: 200% 200%;
+  }
 }

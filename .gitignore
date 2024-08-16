@@ -1,4 +1,4 @@
 node_modules
 *.rest
-data/
-/backend/data/users.json
+data
+./backend/data/users.json

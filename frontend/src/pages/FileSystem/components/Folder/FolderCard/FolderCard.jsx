@@ -2,10 +2,11 @@ import PropTypes from "prop-types";
 
 import "../../FileSystemCard.css";
 import { useLocation, useNavigate } from "react-router";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import {
   CurrentInfoSideBarItemContext,
   CurrentSignedInUserContext,
+  getInfo,
 } from "../../../../../constants";
 
 function FolderCard(props) {
@@ -13,8 +14,24 @@ function FolderCard(props) {
   const [currentUser] = useContext(CurrentSignedInUserContext);
   const [, setCurrentInfo] = useContext(CurrentInfoSideBarItemContext);
 
+  const cardRef = useRef();
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const cardAnimationEnded = () => {
+      cardRef.current.classList.remove("showed");
+    };
+
+    const cardAnimationEvent = cardRef.current.addEventListener(
+      "animationend",
+      cardAnimationEnded
+    );
+
+    return () => removeEventListener("animationend", cardAnimationEvent);
+  });
+
   const folderClickHandler = () => navigate(`${location.pathname}/${name}`);
   /**
    *
@@ -22,22 +39,22 @@ function FolderCard(props) {
    */
   const handleContextMenu = (e) => {
     e.preventDefault();
-    let folder = {
-      ...props.folder,
-      path:
-        location.pathname == `/${currentUser.username}`
-          ? "/"
-          : location.pathname.substring(
-              location.pathname.split("/", 2).join("/").length + 1
-            ),
-    };
-    setCurrentInfo({ type: "side-folder", data: folder });
+    getInfo(
+      `${location.pathname}/folder-${name}`,
+      currentUser.id,
+      navigate
+    ).then((res) =>
+      res && res.status === 200
+        ? setCurrentInfo({ type: "folder", data: res.data })
+        : null
+    );
   };
   return (
     <div
+      className="showed FileSystemCard"
       onClick={folderClickHandler}
       onContextMenu={(e) => handleContextMenu(e)}
-      className="FileSystemCard"
+      ref={cardRef}
     >
       <div className="svg"></div>
       <div className="content">

@@ -6,12 +6,29 @@ import {
   MAIN_URL,
   sizeSizeConversionHandler,
 } from "../../../../../constants";
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 function FileCard(props) {
   const { id, name, path, creationDate, size } = props.file;
   const [, setCurrentInfo] = useContext(CurrentInfoSideBarItemContext);
   const [currentUser] = useContext(CurrentSignedInUserContext);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [flipCard, setFlipCard] = useState(false);
+  const [showedFadeIn, setshowedFadeIn] = useState(false);
+
+  const cardRef = useRef();
+
+  useEffect(() => {
+    const cardAnimationEnded = () => {
+      setshowedFadeIn(true);
+      setIsDownloading(false);
+    };
+    const cardAnimationEvent = cardRef.current.addEventListener(
+      "animationend",
+      cardAnimationEnded
+    );
+    return () => removeEventListener("animationend", cardAnimationEvent);
+  }, []);
 
   /**
    * @param {React.MouseEvent} e
@@ -21,13 +38,18 @@ function FileCard(props) {
     setCurrentInfo({ type: "file", data: props.file });
   };
 
-  const handleMouseClick = () => {
-    if (!confirm(`Do you want to download ${name}?`)) return;
-
+  const handleMouseClick = (e) => {
+    e.stopPropagation();
+    setFlipCard((prev) => (prev ? false : true));
+    console.log(flipCard);
+  };
+  const downloadFile = () => {
+    setFlipCard(false);
+    setIsDownloading(true);
     axios
       .post(
         `${MAIN_URL}/${currentUser.username}${
-          path !== "/" ? path : ""
+          path !== "/home" ? path.substring(5) : ""
         }/file-${name}`,
         { type: "show" },
         {
@@ -52,9 +74,13 @@ function FileCard(props) {
 
   return (
     <div
-      className="FileSystemCard"
+      className={`FileSystemCard
+        ${!showedFadeIn ? "showed" : ""} 
+        ${isDownloading ? "downloadMovement" : ""}
+        ${flipCard ? "flip" : ""}`}
       onClick={handleMouseClick}
       onContextMenu={(e) => handleContextMenu(e)}
+      ref={cardRef}
     >
       <div className="svg file"></div>
       <div className="content">
@@ -69,6 +95,15 @@ function FileCard(props) {
         </div>
 
         <div className="id">File ID: {id}</div>
+      </div>
+      <div className="backside" onClick={(e) => e.stopPropagation()}>
+        <div>Do you want to download {name}</div>
+        <button className="confirm" onClick={downloadFile}>
+          Yes
+        </button>
+        <button className="deny" onClick={handleMouseClick}>
+          No
+        </button>
       </div>
     </div>
   );

@@ -5,12 +5,14 @@ const INDEX_FILE_NAME = "index.json";
 const DATA_PATH = path.resolve(__dirname, "..", "data");
 const USER_FOLDER_PATH = path.join(DATA_PATH, "userFolders");
 
+const homeDirName = "home";
+
 function initializeUserFolderJSON(username) {
   fs.writeFile(
     path.join(USER_FOLDER_PATH, username, INDEX_FILE_NAME),
     JSON.stringify({
       id: generateID(),
-      name: username,
+      name: homeDirName,
       path: "/",
       creationDate: new Date().toISOString(),
       contains: {
@@ -25,7 +27,7 @@ async function newFolderJSON(username, folderPath, folderName) {
   const newFolder = {
     id: generateID(),
     name: folderName,
-    path: `/${folderPath}`,
+    path: `/${homeDirName}${folderPath}`,
     creationDate: new Date().toISOString(),
     contains: {
       files: [],
@@ -66,7 +68,7 @@ async function newFileJSON(username, folderPath, fileName, fileSize) {
   const newFile = {
     id: generateID(),
     name: fileName,
-    path: "/" + folderPath,
+    path: `/${homeDirName}${folderPath}`,
     creationDate: new Date().toISOString(),
     size: fileSize,
   };
@@ -126,20 +128,17 @@ async function moveFileJSON(username, folderPath, filename, newPath) {
   const fileToMove = folderIndex.contains.files.find(
     (file) => file.name === filename
   );
-  console.log("fileToMove:", fileToMove);
   const updatedFiles = folderIndex.contains.files.filter(
     (file) => file.name !== filename
   );
-  console.log("updatedFiles:", updatedFiles);
   folderIndex.contains.files = updatedFiles;
-  console.log("folderIndex.contains.files:", folderIndex.contains.files);
   fs.writeFile(
     path.join(USER_FOLDER_PATH, username, folderPath, INDEX_FILE_NAME),
     JSON.stringify(folderIndex)
   );
 
-  const newFolderIndex = await getIndex(username, folderPath);
-  fileToMove.path = newPath;
+  const newFolderIndex = await getIndex(username, newPath);
+  fileToMove.path = `/${homeDirName}${newPath}`;
   newFolderIndex.contains.files.push(fileToMove);
 
   fs.writeFile(

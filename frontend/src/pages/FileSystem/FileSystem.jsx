@@ -32,18 +32,18 @@ function FileSystem() {
     if (currentUser.id) {
       let index = location.pathname.lastIndexOf("/");
       let folder = location.pathname;
-      if (index != 0)
+      if (index !== 0)
         folder =
           location.pathname.slice(0, index + 1) +
           "folder-" +
           location.pathname.slice(index + 1);
 
       getInfo(folder, currentUser.id, navigate).then((res) => {
-        if (res && res.status === 200) {
+        if (res && res.data && typeof res !== "undefined") {
           setCurrentFolder(res.data);
           setFiles(res.data.contains.files);
           setFolders(res.data.contains.folders);
-        }
+        } else navigate(location.pathname);
       });
     }
   }, [location, currentUser, setCurrentFolder, navigate]);

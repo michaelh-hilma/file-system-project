@@ -9,7 +9,7 @@ import {
 
 import "./InfoSideBar.css";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 function InfoSideBar() {
   const [currentUser] = useContext(CurrentSignedInUserContext);
@@ -27,7 +27,6 @@ function InfoSideBar() {
   const [isEditingFilePath, setIsEditingFilePath] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const exitInfoSideBar = () => {
     setIsEditingFileName(false);
@@ -37,9 +36,8 @@ function InfoSideBar() {
   };
 
   const errorHandler = (err) => {
-    if (err) {
-      console.log(err);
-      if (err.response.data) errorRef.current.textContent = err.response.data;
+    if (err && typeof err.response !== "undefined") {
+      if (err.response) errorRef.current.textContent = err.response.data;
       else {
         alert(
           "Something went wrong with the actions u just made, please try again later.\n"
@@ -59,7 +57,7 @@ function InfoSideBar() {
 
   const getItemWithPath = () =>
     `${MAIN_URL}/${currentUser.username}${
-      itemData.path !== "/" ? `${itemData.path}/` : itemData.path
+      itemData.path !== "/home" ? `${itemData.path.substring(5)}/` : "/"
     }${currentItem.type != "file" ? "folder" : "file"}-${itemData.name}`;
 
   const PostData = (data) =>
@@ -89,11 +87,7 @@ function InfoSideBar() {
     axios
       .delete(getItemWithPath(), AuthenticationHeader())
       .then(() => {
-        if (
-          itemData.name ===
-          location.pathname.substring(location.pathname.lastIndexOf("/") + 1)
-        )
-          navigate(`/${currentUser.username}`);
+        if (currentItem.type === "folder") navigate(currentItem.path);
         setCurrentItem({});
         refreshData();
       })
@@ -107,7 +101,9 @@ function InfoSideBar() {
   };
 
   const moveItem = () => {
-    PatchData({ path: itemPathRef.current.value }).then((res) => {
+    PatchData({
+      path: itemPathRef.current.value.replace("/home", ""),
+    }).then((res) => {
       if (res && res.status != 404) {
         setIsEditingFilePath(false);
         setCurrentItem({});
