@@ -109,7 +109,12 @@ async function addFolder(username, folderPath, foldername) {
     err: null,
     data: null,
   };
-
+  if (foldername.includes(" "))
+    return {
+      status: 400,
+      err: new Error("Folder Cannot Contain Spaces"),
+      data: null,
+    };
   const parentIndex = await JSONUtil.getIndex(username, folderPath);
   if (parentIndex.contains.folders.some((folder) => folder.name === foldername))
     return {

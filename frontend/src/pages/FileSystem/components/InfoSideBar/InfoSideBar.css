@@ -4,7 +4,7 @@
   top: 16vh;
   width: 100vw;
   background-color: transparent;
-  backdrop-filter: blur(6px);
+  animation: feGaussianBlur 0.5s ease forwards;
 }
 
 .InfoSideBar {
@@ -171,9 +171,14 @@
 
 @keyframes openInfoSideBar {
   0% {
-    transform: scale(0, 0.001);
+    transform: translateX(100%);
   }
   50% {
-    transform: scale(1, 0.001);
+    transform: translateX(0%);
+  }
+}
+@keyframes feGaussianBlur {
+  100% {
+    backdrop-filter: blur(6px);
   }
 }

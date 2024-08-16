@@ -205,6 +205,7 @@ app
 app.post("/:username*/folder", async (req, res) => {
   const { username } = req.params;
   const path = req.params[0];
+
   const response = await fileUtil.addFolder(
     username,
     path,

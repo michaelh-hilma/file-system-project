@@ -170,9 +170,11 @@ function InfoSideBar() {
         ) : undefined}
         <div className="id">ID: {itemData.id}</div>
         <div className="actions">
-          <button onClick={deleteItem} className="delete">
-            &#128465; Delete
-          </button>
+          {currentItem.type === "folder" && itemData.path === "/" ? null : (
+            <button onClick={deleteItem} className="delete">
+              &#128465; Delete
+            </button>
+          )}
           {currentItem.type === "file" ? (
             <>
               <button onClick={copyItem} className="duplicate">

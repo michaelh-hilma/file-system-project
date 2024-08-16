@@ -31,8 +31,8 @@ function FolderCard(props) {
 
     return () => removeEventListener("animationend", cardAnimationEvent);
   });
-
-  const folderClickHandler = () => navigate(`${location.pathname}/${name}`);
+  const folderClickHandler = () =>
+    navigate(`${location.pathname}/${name}`.replace(" ", "_"));
   /**
    *
    * @param {React.MouseEvent} e

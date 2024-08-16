@@ -43,7 +43,7 @@ function FileSystem() {
           setCurrentFolder(res.data);
           setFiles(res.data.contains.files);
           setFolders(res.data.contains.folders);
-        } else navigate(location.pathname);
+        } else navigate(`/${currentUser.username}`);
       });
     }
   }, [location, currentUser, setCurrentFolder, navigate]);

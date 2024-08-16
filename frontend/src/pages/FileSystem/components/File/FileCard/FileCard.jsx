@@ -41,7 +41,6 @@ function FileCard(props) {
   const handleMouseClick = (e) => {
     e.stopPropagation();
     setFlipCard((prev) => (prev ? false : true));
-    console.log(flipCard);
   };
   const downloadFile = () => {
     setFlipCard(false);

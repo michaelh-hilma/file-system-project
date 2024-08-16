@@ -18,8 +18,7 @@ function App() {
             currentUserState.username.length + 1
           )}`
       : "*"
-  }`;
-
+  }`.replace(" ", "_");
   useEffect(() => {
     if (
       currentUserState.username &&

@@ -24,7 +24,7 @@
   transition: all 0.35s ease;
 }
 .FileSystemCard.showed {
-  animation: fadeIn 0.35s ease;
+  animation: fadeIn 0.85s ease-out;
 }
 .downloadMovement {
   animation-delay: 0.25s;
@@ -104,6 +104,8 @@
   align-items: center;
   justify-content: center;
   z-index: -1;
+  text-align: center;
+  font-size: 18px;
 }
 .FileSystemCard.flip .backside {
   opacity: 1;
@@ -135,9 +137,20 @@
 @keyframes fadeIn {
   0% {
     opacity: 0;
+    color: transparent;
+    transform: scaleX(0) scaleY(0);
+  }
+  25% {
+    transform: scaleX(1) scaleY(0.9);
+  }
+  50% {
+    transform: scaleX(1) scaleY(1);
+  }
+  75% {
+    opacity: 1;
   }
   100% {
-    opacity: 1;
+    color: inherit;
   }
 }
 
